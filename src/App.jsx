@@ -91,7 +91,7 @@ export default function App() {
   }
 
   async function googleLogin() {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://saengilfunding.com' } })
   }
 
   if (page === 'loading') return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
@@ -569,7 +569,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
     onReload(); showToast('초기화됐어요')
   }
   async function copyLink(slug) {
-    await navigator.clipboard.writeText(window.location.origin + '/' + slug)
+    await navigator.clipboard.writeText('https://saengilfunding.com' + '/' + slug)
     showToast('링크가 복사됐어요!')
   }
   const name = user?.user_metadata?.name || user?.user_metadata?.full_name || '내'
@@ -624,7 +624,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
             <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✅ 완성</div>
             {done.map(f => {
               const fc = f.color || '#69B7FF'
-              const link = window.location.origin + '/' + f.slug
+              const link = 'https://saengilfunding.com' + '/' + f.slug
               return (
                 <div key={f.id} style={{background:'#fff', border:'1px solid #f0f0f0', borderRadius:16, padding:20, marginBottom:12}}>
                   <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10}}>
