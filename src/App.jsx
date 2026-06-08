@@ -156,6 +156,27 @@ function HomePage({ onStart }) {
   )
 }
 
+function EditableText({ value, onChange, style, placeholder, multiline }) {
+  const DEFAULT_PLACEHOLDERS = ['🎂 나의 생일 펀딩 (대제목)', '선물 이름 🎁', '한 줄 멘트를 입력해요']
+  const isDefault = DEFAULT_PLACEHOLDERS.includes(value) || value === ''
+  const [editing, setEditing] = useState(false)
+  const ref = useRef()
+  useEffect(() => { if (editing && ref.current) { ref.current.focus(); if (isDefault) ref.current.select() } }, [editing])
+  if (editing) {
+    const isLight = !style.color || style.color === '#111' || style.color === '#666' || style.color === '#333' || style.color === '#aaa'
+    const s = { ...style, background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)', border: isLight ? '2px dashed #aaa' : '2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px' }
+    return multiline
+      ? <textarea ref={ref} style={{...s, resize:'none', minHeight:60}} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
+      : <input ref={ref} style={s} value={isDefault ? '' : value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
+  }
+  return (
+    <div onClick={() => setEditing(true)} style={{...style, cursor:'pointer', borderBottom:'1.5px dashed rgba(150,150,150,0.4)', paddingBottom:2, display:'inline-block', minWidth:40}}>
+      {value || <span style={{opacity:0.4}}>{placeholder}</span>}
+      <span style={{fontSize:10, opacity:0.5, marginLeft:4}}>✏️</span>
+    </div>
+  )
+}
+
 function AuthPage({ onLogin, onBack }) {
   return (
     <div style={{...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:32}}>
