@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
 
 const COLORS = [
-  { name: 'Sky', main: '#7FB9E6' },
-  { name: 'Lavender', main: '#D6BEEA' },
-  { name: 'Butter', main: '#F4D77A' },
-  { name: 'Matcha', main: '#B7C96A' },
-  { name: 'Pink', main: '#F98BA9' },
-  { name: 'Tangerine', main: '#FF8F45' },
+  { name: 'Cloudy Sky', main: '#BAD6FD' },
+  { name: 'Merlot', main: '#570301' },
+  { name: 'Rose Mist', main: '#F5BAD5' },
+  { name: 'Butter Cream', main: '#F7E594' },
 ]
 
 function won(n) {
