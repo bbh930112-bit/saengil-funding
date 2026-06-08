@@ -390,9 +390,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
               <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:18, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
               {form.birthday && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700, marginLeft:8, whiteSpace:'nowrap'}}>{dday(form.birthday)||'D-?'}</div>}
             </div>
-            <div style={{marginBottom:20}}>
-              <EditableText value={form.sub_message} onChange={v => set('sub_message', v)} placeholder="한 줄 멘트를 입력해요" style={{fontSize:14, color:'#666', display:'block'}} multiline isPlaceholder={!form.sub_message} />
-            </div>
+
 
             <div style={{marginBottom:4}}>
               <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
@@ -698,7 +696,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
           <div style={{fontSize:18, fontWeight:700, color:'#111'}}>{funding.gift_name} 🎁</div>
           {dd && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700}}>{dd}</div>}
         </div>
-        {funding.sub_message && <div style={{fontSize:14, color:'#666', marginBottom:20}}>{funding.sub_message}</div>}
+
 
         <div style={{marginBottom:4}}>
           <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
