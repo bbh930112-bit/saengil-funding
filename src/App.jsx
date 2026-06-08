@@ -260,7 +260,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
               <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
                 <div style={{fontSize:36, fontWeight:700, color:'#111'}}>0원</div>
                 <div style={{fontSize:14, color:'#888', marginBottom:6}}>
-                  목표 <EditableText value={form.goal_amount} onChange={v => set('goal_amount', v.replace(/[^0-9]/g,''))} placeholder="목표금액" style={{fontSize:14, color:color, fontWeight:700}} />
+                  목표 <EditableText value={form.goal_amount} onChange={v => set('goal_amount', v.replace(/[^0-9]/g,''))} placeholder="목표금액" style={{fontSize:14, color:color, fontWeight:700}} />원
                 </div>
               </div>
               <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginTop:10, marginBottom:8}}>
@@ -297,7 +297,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
           {/* 하단 고정 버튼 */}
           <div style={{position:'fixed', bottom:0, left:'50%', transform:'translateX(-50%)', width:'100%', maxWidth:430, padding:'12px 20px 24px', background:'#fff', borderTop:'1px solid #f0f0f0', zIndex:100}}>
             <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={() => setStep('settings')}>
-              다음 → 링크 설정
+              다음
             </button>
           </div>
         </div>
@@ -363,10 +363,17 @@ function MyPage({ user, fundings, onNew, onView, showToast, onReload, toast }) {
     onReload(); showToast('삭제됐어요')
   }
   const name = user?.user_metadata?.name || user?.user_metadata?.full_name || '내'
+
+  async function logout() {
+    await supabase.auth.signOut()
+    window.location.href = '/'
+  }
+
   return (
     <div style={wrap}>
-      <div style={{background:'#69B7FF', padding:'52px 24px 24px', color:'#fff'}}>
+      <div style={{background:'#69B7FF', padding:'52px 24px 24px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
         <div style={{fontSize:18, fontWeight:700}}>{name}의 펀딩</div>
+        <button onClick={logout} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
       </div>
       <div style={{padding:'24px 20px 40px'}}>
         {fundings.length === 0 ? (
@@ -485,6 +492,9 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   const [amount, setAmount] = useState('')
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
+  const [benefits, setBenefits] = useState(funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'])
+  const [editingBenefit, setEditingBenefit] = useState(false)
+  const [benefitDraft, setBenefitDraft] = useState('')
   const [step, setStep] = useState('input')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#69B7FF'
@@ -512,16 +522,49 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
       <div style={{padding:'28px 20px 40px'}}>
         {step === 'input' ? (
           <>
-            {/* 혜택 */}
-            {funding?.benefit_message && (
-              <div style={{border:'1px solid #f0f0f0', borderRadius:14, padding:18, marginBottom:24, textAlign:'center'}}>
-                <div style={{fontSize:15, fontWeight:700, color:color, marginBottom:6}}>지금 후원하시면 특별한 혜택을 드려요!</div>
-                <div style={{fontSize:14, color:'#444'}}>{funding.benefit_message}</div>
-              </div>
-            )}
-            <div style={{marginBottom:24}}>
+            {/* 후원의 효과 섹션 */}
+            <div style={{marginBottom:28, textAlign:'center'}}>
+              <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:16}}>후원의 효과</div>
+              {editingBenefit ? (
+                <div>
+                  <textarea
+                    style={{width:'100%', border:'1.5px solid '+color, borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:120, boxSizing:'border-box', textAlign:'center'}}
+                    value={benefitDraft}
+                    onChange={e => setBenefitDraft(e.target.value)}
+                    placeholder={'한 줄씩 입력해요
+예: 선물로 행복해하는 나를 볼 수 있다!
+가족들 건강하다!'}
+                    autoFocus
+                  />
+                  <button onClick={() => {
+                    setBenefits(benefitDraft.split('\n').filter(Boolean))
+                    setEditingBenefit(false)
+                  }} style={{background:color, color:'#fff', border:'none', borderRadius:10, padding:'10px 24px', fontSize:14, fontWeight:700, cursor:'pointer', marginTop:8}}>완료</button>
+                </div>
+              ) : (
+                <div onClick={() => { setBenefitDraft(benefits.join('\n')); setEditingBenefit(true) }} style={{cursor:'pointer', padding:'16px', background:'#f8f8f8', borderRadius:14, border:'2px dashed #e0e0e0'}}>
+                  {benefits.map((b, i) => (
+                    <div key={i} style={{fontSize:15, color:'#333', marginBottom:i < benefits.length-1 ? 10 : 0, display:'flex', alignItems:'center', justifyContent:'center', gap:8}}>
+                      <span style={{color:color, fontWeight:700}}>✓</span> {b}
+                    </div>
+                  ))}
+                  <div style={{fontSize:11, color:'#bbb', marginTop:12}}>✏️ 눌러서 수정</div>
+                </div>
+              )}
+            </div>
+
+            {/* 금액 입력 */}
+            <div style={{marginBottom:24, textAlign:'center'}}>
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
-              <input style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" />
+              <input
+                style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}}
+                type="number"
+                placeholder="금액을 입력해 주세요"
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                inputMode="numeric"
+                pattern="[0-9]*"
+              />
             </div>
             <button style={{display:'block', width:'100%', background:amount?color:'#e0e0e0', color:amount?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount?'pointer':'not-allowed'}} onClick={goKakao} disabled={!amount}>💛 카카오톡으로 송금하기</button>
           </>
