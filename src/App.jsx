@@ -246,10 +246,16 @@ function CreatePage({ user, onBack, onDone, showToast }) {
   return (
     <div style={{...wrap, background:'#fff'}}>
       {/* 상단 탭 */}
-      <div style={{background:color, padding:'52px 20px 0', display:'flex'}}>
-        {tabBtn('page1', '1페이지')}
-        {tabBtn('page2', '2페이지')}
-        {tabBtn('settings', '링크 설정')}
+      <div style={{background:color, padding:'52px 20px 0'}}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
+          <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>🏠 홈</button>
+          <button onClick={async () => { await supabase.auth.signOut(); try { localStorage.removeItem(PAGE_KEY) } catch(e) {} window.location.href = '/' }} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
+        </div>
+        <div style={{display:'flex'}}>
+          {tabBtn('page1', '1페이지')}
+          {tabBtn('page2', '2페이지')}
+          {tabBtn('settings', '링크 설정')}
+        </div>
       </div>
 
       {/* ── 1페이지 편집 ── */}
@@ -291,8 +297,18 @@ function CreatePage({ user, onBack, onDone, showToast }) {
             <div style={{marginBottom:4}}>
               <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
                 <div style={{fontSize:36, fontWeight:700, color:'#111'}}>0원</div>
-                <div style={{fontSize:14, color:'#888', marginBottom:6}}>
-                  목표 <EditableText value={form.goal_amount} onChange={v => set('goal_amount', v.replace(/[^0-9]/g,''))} placeholder="목표금액" style={{fontSize:14, color:color, fontWeight:700}} />원
+                <div style={{fontSize:14, color:'#888', marginBottom:6, display:'flex', alignItems:'center', gap:4}}>
+                  <span>목표</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={form.goal_amount}
+                    onChange={e => set('goal_amount', e.target.value.replace(/[^0-9]/g,''))}
+                    placeholder="목표금액"
+                    style={{width:100, border:'none', borderBottom:'1.5px solid '+color, outline:'none', fontFamily:'inherit', fontSize:14, color:color, fontWeight:700, textAlign:'right', background:'transparent'}}
+                  />
+                  <span>원</span>
                 </div>
               </div>
               <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginTop:10, marginBottom:8}}>
@@ -360,7 +376,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
                   }} style={{background:color, color:'#fff', border:'none', borderRadius:10, padding:'10px 24px', fontSize:14, fontWeight:700, cursor:'pointer', marginTop:8}}>완료</button>
                 </div>
               ) : (
-                <div onClick={() => { setBenefitDraft(Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : ''); setEditingBenefits(true) }} style={{cursor:'pointer', padding:'16px', background:'#f8f8f8', borderRadius:14, border:'2px dashed #e0e0e0'}}>
+                <div onClick={() => { setBenefitDraft(''); setEditingBenefits(true) }} style={{cursor:'pointer', padding:'16px', background:'#f8f8f8', borderRadius:14, border:'2px dashed #e0e0e0'}}>
                   {Array.isArray(form.benefit_items) && form.benefit_items.map((b, i) => (
                     <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < form.benefit_items.length-1 ? 10 : 0, display:'flex', alignItems:'center', justifyContent:'center', gap:8}}>
                       <span style={{color:color, fontWeight:700}}>✓</span> {b}
