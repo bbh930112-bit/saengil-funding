@@ -43,7 +43,8 @@ function EditableText({ value, onChange, style, placeholder, multiline }) {
   const ref = useRef()
   useEffect(() => { if (editing && ref.current) ref.current.focus() }, [editing])
   if (editing) {
-    const s = { ...style, background:'rgba(255,255,255,0.15)', border:'2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px', color: style.color || '#111' }
+    const isLight = style.color && (style.color === '#111' || style.color === '#666' || style.color === '#333')
+    const s = { ...style, background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)', border: isLight ? '2px dashed #aaa' : '2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px', color: style.color || '#111' }
     return multiline
       ? <textarea ref={ref} style={{...s, resize:'none', minHeight:60}} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
       : <input ref={ref} style={s} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
@@ -64,6 +65,7 @@ export default function App() {
   const [funding, setFunding] = useState(null)
   const [donations, setDonations] = useState([])
   const [myFundings, setMyFundings] = useState([])
+  const [editFunding, setEditFunding] = useState(null)
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
@@ -114,8 +116,8 @@ export default function App() {
   if (page === 'loading') return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
   if (page === 'home') return <HomePage onStart={() => goPage('auth')} />
   if (page === 'auth') return <AuthPage onLogin={googleLogin} onBack={() => goPage('home')} />
-  if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => goPage('create')} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
-  if (page === 'create') return <CreatePage user={user} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
+  if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
+  if (page === 'create') return <CreatePage user={user} editFunding={editFunding} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
   if (page === 'funding') return <FundingPage funding={funding} donations={donations} onDonate={() => goPage('donate')} onReload={() => slug && loadFunding(slug)} toast={toast} />
   if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('funding')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
   if (page === 'done') return <DonePage onBack={() => goPage('funding')} />
@@ -171,15 +173,39 @@ function AuthPage({ onLogin, onBack }) {
 // ─── CreatePage ───────────────────────────────────────────────────────────────
 // 탭: 미리보기1 | 미리보기2 | 링크설정
 // 미리보기1 → 다음 → 미리보기2 → 다음 → 링크설정 → 펀딩 만들기
-function CreatePage({ user, onBack, onDone, showToast }) {
+function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
   const saved = (() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) || {} } catch { return {} } })()
   const savedTab = (() => { try { return localStorage.getItem(DRAFT_KEY + '_tab') || 'page1' } catch { return 'page1' } })()
 
-  const [form, setForm] = useState({
-    title:'', gift_name:'', sub_message:'', goal_amount:'',
-    benefit_items: ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'],
-    kakao_link:'', slug:'', birthday:'', color:'#FF9F5A', image:'', ...saved
-  })
+  const getInitialForm = () => {
+    if (editFunding) {
+      return {
+        title: editFunding.title || '',
+        gift_name: editFunding.gift_name || '',
+        sub_message: editFunding.sub_message || '',
+        goal_amount: editFunding.goal_amount ? String(editFunding.goal_amount) : '',
+        benefit_items: editFunding.benefit_message ? editFunding.benefit_message.split('\n').filter(Boolean) : ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'],
+        kakao_link: editFunding.kakao_link || '',
+        slug: editFunding.is_draft ? '' : (editFunding.slug || ''),
+        birthday: editFunding.birthday || '',
+        color: editFunding.color || '#FF9F5A',
+        image: editFunding.image || '',
+        draftId: editFunding.id,
+        isEdit: !editFunding.is_draft,
+        editId: editFunding.id,
+      }
+    }
+    const parsedSaved = { ...saved }
+    if (parsedSaved.benefit_items && !Array.isArray(parsedSaved.benefit_items)) {
+      parsedSaved.benefit_items = ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!']
+    }
+    return {
+      title:'', gift_name:'', sub_message:'', goal_amount:'',
+      benefit_items: ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'],
+      kakao_link:'', slug:'', birthday:'', color:'#FF9F5A', image:'', ...parsedSaved
+    }
+  }
+  const [form, setForm] = useState(getInitialForm)
   const [tab, setTab] = useState(savedTab) // 'page1' | 'page2' | 'settings'
   const [loading, setLoading] = useState(false)
   const [guide, setGuide] = useState(false)
@@ -200,8 +226,44 @@ function CreatePage({ user, onBack, onDone, showToast }) {
 
   const color = form.color || '#FF9F5A'
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)) } catch(e) {}
+    // DB에도 임시 저장
+    if (form.draftId) {
+      // 기존 임시저장 업데이트
+      await supabase.from('fundings').update({
+        title: form.title || '(제목 없음)',
+        gift_name: form.gift_name || '',
+        sub_message: form.sub_message || '',
+        goal_amount: parseInt(form.goal_amount) || 0,
+        benefit_message: Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : '',
+        color: form.color || '#FF9F5A',
+        image: form.image || null,
+        is_draft: true,
+      }).eq('id', form.draftId)
+    } else {
+      // 새 임시저장 생성 (slug 없이)
+      const tempSlug = 'draft_' + user.id.slice(0,8) + '_' + Date.now()
+      const { data } = await supabase.from('fundings').insert({
+        user_id: user.id,
+        title: form.title || '(제목 없음)',
+        gift_name: form.gift_name || '',
+        sub_message: form.sub_message || '',
+        goal_amount: parseInt(form.goal_amount) || 0,
+        benefit_message: Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : '',
+        kakao_link: form.kakao_link || '',
+        slug: tempSlug,
+        birthday: form.birthday || null,
+        color: form.color || '#FF9F5A',
+        image: form.image || null,
+        is_draft: true,
+      }).select().single()
+      if (data) {
+        const next = {...form, draftId: data.id}
+        setForm(next)
+        try { localStorage.setItem(DRAFT_KEY, JSON.stringify(next)) } catch(e) {}
+      }
+    }
     showToast('저장됐어요!')
   }
 
@@ -217,22 +279,32 @@ function CreatePage({ user, onBack, onDone, showToast }) {
   async function submit() {
     if (!ready) return
     setLoading(true)
-    const { error } = await supabase.from('fundings').insert({
-      user_id: user.id,
+    const payload = {
       title: form.title,
       gift_name: form.gift_name,
       sub_message: form.sub_message,
       goal_amount: parseInt(form.goal_amount),
-      benefit_message: Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : '',
+      benefit_message: Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : (typeof form.benefit_items === 'string' ? form.benefit_items : ''),
       kakao_link: form.kakao_link,
       slug: form.slug.toLowerCase(),
       birthday: form.birthday || null,
       color: form.color,
-      image: form.image || null
-    })
+      image: form.image || null,
+      is_draft: false,
+    }
+    let error
+    if (form.draftId || form.editId) {
+      // 기존 펀딩 업데이트
+      const { error: e } = await supabase.from('fundings').update(payload).eq('id', form.draftId || form.editId)
+      error = e
+    } else {
+      // 새 펀딩 생성
+      const { error: e } = await supabase.from('fundings').insert({ user_id: user.id, ...payload })
+      error = e
+    }
     setLoading(false)
     if (error) { showToast('오류: ' + error.message); return }
-    showToast('펀딩 페이지가 만들어졌어요!')
+    showToast(form.isEdit ? '수정됐어요!' : '펀딩 페이지가 만들어졌어요!')
     try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {}
     onDone()
   }
@@ -376,13 +448,17 @@ function CreatePage({ user, onBack, onDone, showToast }) {
                   }} style={{background:color, color:'#fff', border:'none', borderRadius:10, padding:'10px 24px', fontSize:14, fontWeight:700, cursor:'pointer', marginTop:8}}>완료</button>
                 </div>
               ) : (
-                <div onClick={() => { setBenefitDraft(''); setEditingBenefits(true) }} style={{cursor:'pointer', padding:'16px', background:'#f8f8f8', borderRadius:14, border:'2px dashed #e0e0e0'}}>
+                <div onClick={() => {
+                  const isDefault = JSON.stringify(form.benefit_items) === JSON.stringify(['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'])
+                  setBenefitDraft(isDefault ? '' : (Array.isArray(form.benefit_items) ? form.benefit_items.join('\n') : ''))
+                  setEditingBenefits(true)
+                }} style={{cursor:'pointer', padding:'16px', background:'#f8f8f8', borderRadius:14, border:'2px dashed #e0e0e0'}}>
                   {Array.isArray(form.benefit_items) && form.benefit_items.map((b, i) => (
-                    <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < form.benefit_items.length-1 ? 10 : 0, display:'flex', alignItems:'center', justifyContent:'center', gap:8}}>
-                      <span style={{color:color, fontWeight:700}}>✓</span> {b}
+                    <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < form.benefit_items.length-1 ? 10 : 0, textAlign:'center'}}>
+                      {b}
                     </div>
                   ))}
-                  <div style={{fontSize:11, color:'#bbb', marginTop:12}}>✏️ 눌러서 수정 (누르면 내용이 초기화돼요)</div>
+                  <div style={{fontSize:11, color:'#bbb', marginTop:12}}>✏️ 눌러서 수정</div>
                 </div>
               )}
             </div>
@@ -453,7 +529,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
   )
 }
 
-function MyPage({ user, fundings, onNew, onView, showToast, onReload, toast }) {
+function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, toast }) {
   async function copyLink(slug) {
     await navigator.clipboard.writeText(window.location.origin + '/' + slug)
     showToast('링크가 복사됐어요!')
@@ -471,6 +547,9 @@ function MyPage({ user, fundings, onNew, onView, showToast, onReload, toast }) {
     window.location.href = '/'
   }
 
+  const drafts = fundings.filter(f => f.is_draft)
+  const done = fundings.filter(f => !f.is_draft)
+
   return (
     <div style={wrap}>
       <div style={{background:'#69B7FF', padding:'52px 24px 24px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
@@ -478,28 +557,64 @@ function MyPage({ user, fundings, onNew, onView, showToast, onReload, toast }) {
         <button onClick={logout} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
       </div>
       <div style={{padding:'24px 20px 40px'}}>
-        {fundings.length === 0 ? (
+
+        {/* 작성 중 */}
+        {drafts.length > 0 && (
+          <div style={{marginBottom:28}}>
+            <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✏️ 작성 중</div>
+            {drafts.map(f => {
+              const fc = f.color || '#69B7FF'
+              return (
+                <div key={f.id} style={{background:'#fff', border:'2px dashed #e0e0e0', borderRadius:16, padding:20, marginBottom:12}}>
+                  <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
+                    <div style={{width:10, height:10, borderRadius:'50%', background:fc}} />
+                    <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{f.title || '(제목 없음)'}</div>
+                    <div style={{marginLeft:'auto', background:'#f0f0f0', borderRadius:6, padding:'2px 8px', fontSize:11, color:'#888', fontWeight:600}}>작성 중</div>
+                  </div>
+                  <div style={{fontSize:12, color:'#aaa', marginBottom:14}}>링크 미설정 · 공유 불가</div>
+                  <div style={{display:'flex', gap:8}}>
+                    <button style={{flex:1, background:fc, border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#fff', cursor:'pointer'}} onClick={() => onEdit(f)}>이어서 편집</button>
+                    <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#e74c3c', cursor:'pointer'}} onClick={() => del(f.id)}>삭제</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* 완성 */}
+        {done.length > 0 && (
+          <div style={{marginBottom:28}}>
+            <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✅ 완성</div>
+            {done.map(f => {
+              const fc = f.color || '#69B7FF'
+              return (
+                <div key={f.id} style={{background:'#fff', border:'1px solid #f0f0f0', borderRadius:16, padding:20, marginBottom:12}}>
+                  <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
+                    <div style={{width:10, height:10, borderRadius:'50%', background:fc}} />
+                    <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{f.title}</div>
+                    <div style={{marginLeft:'auto', background:fc+'22', borderRadius:6, padding:'2px 8px', fontSize:11, color:fc, fontWeight:600}}>완성</div>
+                  </div>
+                  <div style={{fontSize:12, color:fc, marginBottom:14, wordBreak:'break-all'}}>saengilfunding.com/{f.slug}</div>
+                  <div style={{display:'flex', gap:8}}>
+                    <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#333', cursor:'pointer'}} onClick={() => copyLink(f.slug)}>링크 복사</button>
+                    <button style={{flex:1, background:fc, border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#fff', cursor:'pointer'}} onClick={() => onView(f)}>보기</button>
+                    <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#333', cursor:'pointer'}} onClick={() => onEdit(f)}>수정</button>
+                    <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#e74c3c', cursor:'pointer'}} onClick={() => del(f.id)}>삭제</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {fundings.length === 0 && (
           <div style={{textAlign:'center', padding:'40px 0', color:'#aaa'}}>
             <div style={{fontSize:40, marginBottom:12}}>🎂</div>
             <div style={{fontSize:15}}>아직 펀딩이 없어요</div>
           </div>
-        ) : fundings.map(f => {
-          const fc = f.color || '#69B7FF'
-          return (
-            <div key={f.id} style={{background:'#fff', border:'1px solid #f0f0f0', borderRadius:16, padding:20, marginBottom:16}}>
-              <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
-                <div style={{width:10, height:10, borderRadius:'50%', background:fc}} />
-                <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{f.title}</div>
-              </div>
-              <div style={{fontSize:12, color:fc, marginBottom:14, wordBreak:'break-all'}}>saengilfunding.com/{f.slug}</div>
-              <div style={{display:'flex', gap:8}}>
-                <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#333', cursor:'pointer'}} onClick={() => copyLink(f.slug)}>링크 복사</button>
-                <button style={{flex:1, background:fc, border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#fff', cursor:'pointer'}} onClick={() => onView(f)}>보기</button>
-                <button style={{flex:1, background:'#f5f5f5', border:'none', borderRadius:10, padding:'10px 0', fontSize:13, fontWeight:600, color:'#333', cursor:'pointer'}} onClick={() => del(f.id)}>삭제</button>
-              </div>
-            </div>
-          )
-        })}
+        )}
+
         <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:8}} onClick={onNew}>+ 새 펀딩 만들기</button>
       </div>
       {toast && <div style={{position:'fixed', bottom:32, left:'50%', transform:'translateX(-50%)', background:'#222', color:'#fff', borderRadius:10, padding:'12px 20px', fontSize:14, fontWeight:500, zIndex:9999, whiteSpace:'nowrap'}}>{toast}</div>}
@@ -623,8 +738,8 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
                 <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:16}}>후원의 효과</div>
                 <div style={{padding:'16px', background:'#f8f8f8', borderRadius:14}}>
                   {benefits.map((b, i) => (
-                    <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < benefits.length-1 ? 10 : 0, display:'flex', alignItems:'center', justifyContent:'center', gap:8}}>
-                      <span style={{color:color, fontWeight:700}}>✓</span> {b}
+                    <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < benefits.length-1 ? 10 : 0, textAlign:'center'}}>
+                      {b}
                     </div>
                   ))}
                 </div>
