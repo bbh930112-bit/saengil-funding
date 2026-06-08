@@ -770,7 +770,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
           <>
             <div style={{background:'#f0fff4', border:'1px solid #69d98c', borderRadius:14, padding:18, marginBottom:24, textAlign:'center'}}>
               <div style={{fontSize:15, fontWeight:700, color:'#2a8a4a', marginBottom:4}}>후원이 완료되었습니다!</div>
-              <div style={{fontSize:13, color:'#555'}}>이름과 한마디를 남겨 주세요 💚</div>
+              <div style={{fontSize:13, color:'#555'}}>축하 한마디를 남겨 주세요 💚</div>
             </div>
             <div style={{marginBottom:24}}>
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디 <span style={{fontSize:11, color:'#aaa'}}>선택</span></label>
