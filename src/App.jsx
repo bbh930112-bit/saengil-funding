@@ -105,33 +105,63 @@ export default function App() {
   return null
 }
 
+const SLIDES = [
+  {
+    emoji: '🎂',
+    title: '생일 선물,
+큰 거 하나 받고 싶다',
+    desc: '자잘한 선물은 이제 그만
+능동적으로 비싼 선물을 얻어내자',
+    color: '#69B7FF',
+  },
+  {
+    emoji: '🔗',
+    title: '링크 하나로
+친구들에게 공유',
+    desc: '내 펀딩 링크를 만들어
+카카오톡으로 뿌리면 끝',
+    color: '#FFABC8',
+  },
+  {
+    emoji: '💸',
+    title: '친구들은 앱 설치
+없이 바로 후원',
+    desc: '링크만 열면 카카오톡으로
+바로 송금 가능',
+    color: '#72D572',
+  },
+]
+
 function HomePage({ onStart }) {
+  const [slide, setSlide] = useState(0)
+  const color = SLIDES[slide].color
+
   return (
-    <div style={wrap}>
-      <div style={{background:'#69B7FF', padding:'52px 24px 28px', color:'#fff'}}>
-        <div style={{fontSize:13, fontWeight:500, opacity:0.85, marginBottom:6}}>🎂 생일펀딩</div>
-        <div style={{fontSize:26, fontWeight:700, marginBottom:4}}>생일 선물,<br/>큰 거 하나 받고 싶다</div>
-        <div style={{fontSize:13, opacity:0.8}}>자잘한 선물은 이제 그만 능동적으로 비싼 선물을 얻어내자</div>
+    <div style={{...wrap, display:'flex', flexDirection:'column', minHeight:'100vh'}}>
+      {/* 슬라이드 영역 */}
+      <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'60px 32px 32px', background:color, transition:'background 0.4s'}}>
+        <div style={{fontSize:72, marginBottom:24}}>{SLIDES[slide].emoji}</div>
+        <div style={{fontSize:28, fontWeight:800, color:'#fff', textAlign:'center', marginBottom:16, lineHeight:1.3, whiteSpace:'pre-line'}}>{SLIDES[slide].title}</div>
+        <div style={{fontSize:15, color:'rgba(255,255,255,0.85)', textAlign:'center', lineHeight:1.7, whiteSpace:'pre-line'}}>{SLIDES[slide].desc}</div>
+
+        {/* 점 인디케이터 */}
+        <div style={{display:'flex', gap:8, marginTop:40}}>
+          {SLIDES.map((_, i) => (
+            <div key={i} onClick={() => setSlide(i)} style={{width: slide===i ? 20 : 8, height:8, borderRadius:99, background: slide===i ? '#fff' : 'rgba(255,255,255,0.4)', cursor:'pointer', transition:'all 0.3s'}} />
+          ))}
+        </div>
       </div>
-      <div style={{padding:'0 20px 40px'}}>
-        <div style={{fontSize:12, color:'#888', fontWeight:500, marginTop:28, marginBottom:12}}>이런 펀딩들이 있어요</div>
-        {SAMPLES.map((f, i) => {
-          const pct = Math.round((f.raised / f.goal) * 100)
-          return (
-            <div key={i} style={{border:'1px solid #f0f0f0', borderRadius:16, padding:20, marginBottom:12}}>
-              <div style={{fontSize:16, fontWeight:700, color:'#111', marginBottom:4}}>{f.title}</div>
-              <div style={{fontSize:13, color:'#888', marginBottom:14}}>{f.gift}</div>
-              <div style={{height:6, background:'#f0f0f0', borderRadius:99}}>
-                <div style={{height:6, background:f.color, borderRadius:99, width:pct+'%'}} />
-              </div>
-              <div style={{display:'flex', justifyContent:'space-between', marginTop:10}}>
-                <div style={{fontSize:12, color:f.color, fontWeight:600}}>{won(f.raised)} 모였어요 ({pct}%)</div>
-                <div style={{fontSize:12, color:'#888'}}>D-{f.dday}</div>
-              </div>
-            </div>
-          )
-        })}
-        <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
+
+      {/* 하단 고정 버튼 */}
+      <div style={{padding:'20px 24px 40px', background:'#fff'}}>
+        {slide < SLIDES.length - 1 ? (
+          <div style={{display:'flex', gap:12}}>
+            <button onClick={onStart} style={{flex:1, background:'#f0f0f0', color:'#888', border:'none', borderRadius:14, padding:'16px 0', fontSize:15, fontWeight:600, cursor:'pointer'}}>건너뛰기</button>
+            <button onClick={() => setSlide(s => s+1)} style={{flex:2, background:color, color:'#fff', border:'none', borderRadius:14, padding:'16px 0', fontSize:16, fontWeight:700, cursor:'pointer', transition:'background 0.4s'}}>다음</button>
+          </div>
+        ) : (
+          <button onClick={onStart} style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', transition:'background 0.4s'}}>나도 만들기</button>
+        )}
       </div>
     </div>
   )
@@ -407,15 +437,9 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
               </div>
             </div>
 
-            <div style={{display:'flex', gap:12, marginTop:16, marginBottom:20}}>
-              <div style={{flex:1, border:'1px solid #f0f0f0', borderRadius:14, padding:'14px 16px'}}>
-                <div style={{fontSize:12, color:'#aaa', marginBottom:6}}>남은 금액</div>
-                <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{form.goal_amount ? won(form.goal_amount) : '—'}</div>
-              </div>
-              <div style={{flex:1, border:'1px solid #f0f0f0', borderRadius:14, padding:'14px 16px'}}>
-                <div style={{fontSize:12, color:'#aaa', marginBottom:6}}>평균 참여금액</div>
-                <div style={{fontSize:16, fontWeight:700, color:'#111'}}>—</div>
-              </div>
+            <div style={{borderTop:'1px solid #f0f0f0', marginTop:4, marginBottom:20, paddingTop:14}}>
+              <div style={{fontSize:12, color:'#aaa', marginBottom:4}}>남은 금액</div>
+              <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{form.goal_amount ? won(form.goal_amount) : '—'}</div>
             </div>
 
             <div style={{border:'1px solid #f0f0f0', borderRadius:14, padding:'16px', marginBottom:20}}>
@@ -698,15 +722,9 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
           <div style={{fontSize:13, color:'#888', marginBottom:16}}>{pct}% 달성</div>
         </div>
 
-        <div style={{display:'flex', gap:12, marginTop:16, marginBottom:20}}>
-          <div style={{flex:1, border:'1px solid #f0f0f0', borderRadius:14, padding:'14px 16px'}}>
-            <div style={{fontSize:12, color:'#aaa', marginBottom:6}}>남은 금액</div>
-            <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</div>
-          </div>
-          <div style={{flex:1, border:'1px solid #f0f0f0', borderRadius:14, padding:'14px 16px'}}>
-            <div style={{fontSize:12, color:'#aaa', marginBottom:6}}>평균 참여금액</div>
-            <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{avg > 0 ? won(avg) : '—'}</div>
-          </div>
+        <div style={{borderTop:'1px solid #f0f0f0', marginTop:4, marginBottom:20, paddingTop:14}}>
+          <div style={{fontSize:12, color:'#aaa', marginBottom:4}}>남은 금액</div>
+          <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</div>
         </div>
 
         {msgs.length > 0 && (
