@@ -137,22 +137,37 @@ function HomePage({ onStart }) {
   )
 }
 
-function EditableText({ value, onChange, style, placeholder, multiline }) {
-  const DEFAULT_PLACEHOLDERS = ['🎂 나의 생일 펀딩 (대제목)', '선물 이름 🎁', '한 줄 멘트를 입력해요']
-  const isDefault = DEFAULT_PLACEHOLDERS.includes(value) || value === ''
+function EditableText({ value, onChange, style, placeholder, multiline, isPlaceholder }) {
+  // isPlaceholder=true이면 예시텍스트(처음엔 비워서 시작), false면 실제값
   const [editing, setEditing] = useState(false)
+  const [inputVal, setInputVal] = useState(isPlaceholder ? '' : value)
   const ref = useRef()
-  useEffect(() => { if (editing && ref.current) { ref.current.focus(); if (isDefault) ref.current.select() } }, [editing])
-  if (editing) {
-    const isLight = !style.color || style.color === '#111' || style.color === '#666' || style.color === '#333' || style.color === '#aaa'
-    const s = { ...style, background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)', border: isLight ? '2px dashed #aaa' : '2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px' }
-    return multiline
-      ? <textarea ref={ref} style={{...s, resize:'none', minHeight:60}} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
-      : <input ref={ref} style={s} value={isDefault ? '' : value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
+
+  useEffect(() => {
+    if (!isPlaceholder) setInputVal(value)
+  }, [value, isPlaceholder])
+
+  useEffect(() => {
+    if (editing && ref.current) ref.current.focus()
+  }, [editing])
+
+  const handleBlur = () => {
+    setEditing(false)
+    onChange(inputVal)
   }
+
+  if (editing) {
+    const isLight = !style.color || ['#111','#666','#333','#aaa'].includes(style.color)
+    const s = { ...style, background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.2)', border: isLight ? '2px dashed #aaa' : '2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px' }
+    return multiline
+      ? <textarea ref={ref} style={{...s, resize:'none', minHeight:60}} value={inputVal} onChange={e => setInputVal(e.target.value)} onBlur={handleBlur} />
+      : <input ref={ref} style={s} value={inputVal} onChange={e => setInputVal(e.target.value)} onBlur={handleBlur} />
+  }
+
+  const displayVal = isPlaceholder ? value : (inputVal || value)
   return (
-    <div onClick={() => setEditing(true)} style={{...style, cursor:'pointer', borderBottom:'1.5px dashed rgba(150,150,150,0.4)', paddingBottom:2, display:'inline-block', minWidth:40}}>
-      {value || <span style={{opacity:0.4}}>{placeholder}</span>}
+    <div onClick={() => setEditing(true)} style={{...style, cursor:'pointer', borderBottom:'1.5px dashed rgba(150,150,150,0.35)', paddingBottom:2, display:'inline-block', minWidth:40}}>
+      {displayVal || <span style={{opacity:0.4}}>{placeholder}</span>}
       <span style={{fontSize:10, opacity:0.5, marginLeft:4}}>✏️</span>
     </div>
   )
@@ -276,10 +291,19 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
     setSlugStatus(data ? 'error' : 'ok')
   }
 
-  const ready = form.title && form.gift_name && form.goal_amount && form.kakao_link && form.slug && slugStatus === 'ok'
+  // 수정 모드(기존 완성 펀딩)면 slug 중복확인 불필요, 새로 만들 때만 필요
+  const isEditMode = !!(form.editId && !form.draftId)
+  const slugOk = isEditMode || slugStatus === 'ok'
+  const ready = form.title && form.gift_name && form.goal_amount && form.kakao_link && form.slug && slugOk
 
   async function submit() {
-    if (!ready) return
+    // 어떤 항목이 빠졌는지 알려주기
+    if (!form.title) { showToast('대제목을 입력해 주세요'); return }
+    if (!form.gift_name) { showToast('선물 이름을 입력해 주세요'); return }
+    if (!form.goal_amount) { showToast('목표 금액을 입력해 주세요'); return }
+    if (!form.kakao_link) { showToast('카카오 링크를 입력해 주세요'); return }
+    if (!form.slug) { showToast('펀딩 링크를 입력해 주세요'); return }
+    if (!isEditMode && slugStatus !== 'ok') { showToast('링크 중복확인을 해 주세요'); return }
     setLoading(true)
     const payload = {
       title: form.title,
@@ -337,7 +361,7 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
         <div style={{paddingBottom:100}}>
           <div style={{background:color, padding:'20px 20px 24px', color:'#fff'}}>
             <div style={{fontSize:11, color:'rgba(255,255,255,0.75)', marginBottom:10}}>✏️ 텍스트를 눌러 직접 수정해요</div>
-            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:22, fontWeight:700, color:'#fff', display:'block'}} />
+            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:22, fontWeight:700, color:'#fff', display:'block'}} isPlaceholder={!form.title} />
           </div>
 
           {form.image ? (
@@ -361,11 +385,11 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
 
           <div style={{padding:'20px 20px 0'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-              <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:20, fontWeight:700, color:'#111'}} />
+              <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:20, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
               {form.birthday && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700, marginLeft:8, whiteSpace:'nowrap'}}>{dday(form.birthday)||'D-?'}</div>}
             </div>
             <div style={{marginBottom:20}}>
-              <EditableText value={form.sub_message} onChange={v => set('sub_message', v)} placeholder="한 줄 멘트를 입력해요" style={{fontSize:14, color:'#666', display:'block'}} multiline />
+              <EditableText value={form.sub_message} onChange={v => set('sub_message', v)} placeholder="한 줄 멘트를 입력해요" style={{fontSize:14, color:'#666', display:'block'}} multiline isPlaceholder={!form.sub_message} />
             </div>
 
             <div style={{marginBottom:4}}>
