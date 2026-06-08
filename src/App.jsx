@@ -361,11 +361,8 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       {/* ── 1페이지 편집 ── */}
       {tab === 'page1' && (
         <div style={{paddingBottom:100}}>
-          <div style={{background:color, padding:'12px 20px 7px', color:'#fff'}}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-              <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:17, fontWeight:700, color:'#fff'}} isPlaceholder={!form.title} />
-              <div style={{fontSize:10, color:'rgba(255,255,255,0.6)', whiteSpace:'nowrap', marginLeft:8}}>✏️ 눌러 수정</div>
-            </div>
+          <div style={{background:color, padding:'12px 20px 7px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:17, fontWeight:700, color:'#fff'}} isPlaceholder={!form.title} />
           </div>
 
           {form.image ? (
@@ -661,14 +658,14 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
-      <div style={{background:color, padding:'48px 20px 10px'}}>
+      <div style={{background:color, padding:'48px 20px 12px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
-          <div style={{display:'flex', justifyContent:'flex-end', alignItems:'center', gap:8, marginBottom:10}}>
-            <button onClick={onHome} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>🏠 홈</button>
-            <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
+          <div style={{display:'flex', gap:8, flexShrink:0, marginLeft:12}}>
+            <button onClick={onHome} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:12, fontWeight:600, cursor:'pointer'}}>🏠 홈</button>
+            <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:12, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
           </div>
         )}
-        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
       </div>
 
       {funding.image ? (
