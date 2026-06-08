@@ -129,9 +129,15 @@ export default function App() {
     setMyFundings(data || [])
   }
 
-  async function kakaoLogin() {
-    await supabase.auth.signInWithOAuth({ provider: 'kakao', options: { redirectTo: window.location.origin } })
-  }
+async function kakaoLogin() {
+  await supabase.auth.signInWithOAuth({ 
+    provider: 'kakao',
+    options: { 
+      redirectTo: window.location.origin,
+      scopes: 'profile_nickname'
+    } 
+  })
+}
 
   if (page === 'loading') return <div style={s.loading}>펀딩 접속 중...</div>
   if (page === 'home') return <HomePage onStart={() => setPage('auth')} />
