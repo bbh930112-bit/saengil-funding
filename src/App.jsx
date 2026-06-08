@@ -13,8 +13,8 @@ const COLORS = [
 ]
 
 const SAMPLES = [
-  { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
-  { title: '👗 입을 옷 없어서 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#FFABC8' },
+  { title: '🎧 출근길 허전함을 채우는 후원.', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
+  { title: '👗 입을 옷이 없어 비키니 입고 다님.', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#FFABC8' },
 ]
 
 const DRAFT_KEY = 'saengil_draft'
@@ -748,7 +748,6 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
 function DonatePage({ funding, onBack, onDone, showToast }) {
   const [amount, setAmount] = useState('')
-  const [name, setName] = useState('')
   const [message, setMessage] = useState('')
   const [step, setStep] = useState('input')
   const [loading, setLoading] = useState(false)
@@ -762,9 +761,8 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   }
 
   async function done() {
-    if (!name.trim()) { showToast('이름을 입력해 주세요'); return }
     setLoading(true)
-    await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:name.trim() })
+    await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:'익명' })
     setLoading(false)
     onDone()
   }
@@ -803,14 +801,10 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
               <div style={{fontSize:13, color:'#555'}}>이름과 한마디를 남겨 주세요 💚</div>
             </div>
             <div style={{marginBottom:24}}>
-              <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>이름 또는 닉네임</label>
-              <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} placeholder="예: 민지 친구 수진" value={name} onChange={e => setName(e.target.value)} />
-            </div>
-            <div style={{marginBottom:24}}>
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디 <span style={{fontSize:11, color:'#aaa'}}>선택</span></label>
               <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => setMessage(e.target.value)} />
             </div>
-            <button style={{display:'block', width:'100%', background:name?color:'#e0e0e0', color:name?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:name?'pointer':'not-allowed'}} onClick={done} disabled={!name||loading}>
+            <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={done} disabled={loading}>
               {loading ? '저장 중...' : '후원 완료'}
             </button>
           </>
