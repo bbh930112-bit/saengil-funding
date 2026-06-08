@@ -97,7 +97,7 @@ export default function App() {
   if (page === 'loading') return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
   if (page === 'home') return <HomePage onStart={() => goPage('auth')} />
   if (page === 'auth') return <AuthPage onLogin={googleLogin} onBack={() => goPage('home')} />
-  if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
+  if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {} goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
   if (page === 'create') return <CreatePage user={user} editFunding={editFunding} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
   if (page === 'funding') return <FundingPage funding={funding} donations={donations} onDonate={() => goPage('donate')} onReload={() => slug && loadFunding(slug)} toast={toast} />
   if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('funding')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
@@ -261,7 +261,7 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
     } else {
       // 새 임시저장 생성 (slug 없이)
       const tempSlug = 'draft_' + user.id.slice(0,8) + '_' + Date.now()
-      const { data } = await supabase.from('fundings').insert({
+      const { data, error } = await supabase.from('fundings').insert({
         user_id: user.id,
         title: form.title || '(제목 없음)',
         gift_name: form.gift_name || '',
@@ -274,8 +274,8 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
         color: form.color || '#FF9F5A',
         image: form.image || null,
         is_draft: true,
-      }).select().single()
-      if (data) {
+      }).select('id').single()
+      if (data && !error) {
         const next = {...form, draftId: data.id}
         setForm(next)
         try { localStorage.setItem(DRAFT_KEY, JSON.stringify(next)) } catch(e) {}
@@ -304,6 +304,7 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
     if (!form.kakao_link) { showToast('카카오 링크를 입력해 주세요'); return }
     if (!form.slug) { showToast('펀딩 링크를 입력해 주세요'); return }
     if (!isEditMode && slugStatus !== 'ok') { showToast('링크 중복확인을 해 주세요'); return }
+    if (!user || !user.id) { showToast('로그인이 필요해요. 다시 로그인해 주세요'); return }
     setLoading(true)
     const payload = {
       title: form.title,
@@ -329,7 +330,7 @@ function CreatePage({ user, editFunding, onBack, onDone, showToast }) {
       error = e
     }
     setLoading(false)
-    if (error) { showToast('오류: ' + error.message); return }
+    if (error) { showToast('저장 실패: ' + (error.message || error.code || JSON.stringify(error))); setLoading(false); return }
     showToast(form.isEdit ? '수정됐어요!' : '펀딩 페이지가 만들어졌어요!')
     try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {}
     onDone()
