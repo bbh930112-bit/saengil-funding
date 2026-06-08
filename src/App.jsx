@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
 
 const COLORS = [
-  { name: '블루', main: '#3D8BFF', light: '#EBF3FF' },
-  { name: '핑크', main: '#FF6B9D', light: '#FFEBF3' },
-  { name: '그린', main: '#2ECC71', light: '#E8FBF1' },
-  { name: '퍼플', main: '#9B59B6', light: '#F3EBFB' },
-  { name: '오렌지', main: '#FF8C42', light: '#FFF0E8' },
-  { name: '민트', main: '#1ABC9C', light: '#E8FAF6' },
-  { name: '레드', main: '#E74C3C', light: '#FDECEA' },
+  { name: 'Sky', main: '#7FB9E6' },
+  { name: 'Lavender', main: '#D6BEEA' },
+  { name: 'Butter', main: '#F4D77A' },
+  { name: 'Matcha', main: '#B7C96A' },
+  { name: 'Pink', main: '#F98BA9' },
+  { name: 'Tangerine', main: '#FF8F45' },
 ]
 
 function won(n) {
