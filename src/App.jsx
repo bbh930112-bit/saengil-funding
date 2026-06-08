@@ -361,9 +361,9 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       {/* ── 1페이지 편집 ── */}
       {tab === 'page1' && (
         <div style={{paddingBottom:100}}>
-          <div style={{background:color, padding:'20px 20px 24px', color:'#fff'}}>
-            <div style={{fontSize:11, color:'rgba(255,255,255,0.75)', marginBottom:10}}>✏️ 텍스트를 눌러 직접 수정해요</div>
-            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:14, fontWeight:600, color:'#fff', display:'block', opacity:0.9}} isPlaceholder={!form.title} />
+          <div style={{background:color, padding:'20px 20px 14px', color:'#fff'}}>
+            <div style={{fontSize:11, color:'rgba(255,255,255,0.75)', marginBottom:8}}>✏️ 텍스트를 눌러 직접 수정해요</div>
+            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:17, fontWeight:700, color:'#fff', display:'block'}} isPlaceholder={!form.title} />
           </div>
 
           {form.image ? (
@@ -659,11 +659,11 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
-      <div style={{background:color, padding:'52px 20px 20px'}}>
+      <div style={{background:color, padding:'48px 20px 14px'}}>
         {user && onHome && (
-          <button onClick={onHome} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer', marginBottom:12}}>🏠 홈</button>
+          <button onClick={onHome} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'4px 10px', fontSize:12, fontWeight:600, cursor:'pointer', marginBottom:8, display:'block'}}>🏠 홈</button>
         )}
-        <div style={{fontSize:14, fontWeight:600, color:'#fff', opacity:0.9}}>{funding.title}</div>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
       </div>
 
       {funding.image ? (
@@ -677,24 +677,22 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       <div style={{padding:'20px 20px 0'}}>
         <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>{funding.gift_name} 🎁</div>
 
-        <div style={{marginBottom:4}}>
+        <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
           <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:10}}>
             <div style={{fontSize:25, fontWeight:700, color:color}}>{donations.length}<span style={{fontSize:16, fontWeight:600, color:'#111'}}>명 참여</span></div>
-            {dd && <div style={{background:'#f0f0f0', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
+            {dd && <div style={{background:'#fff', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
           </div>
           <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
             <div style={{fontSize:32, fontWeight:700, color:'#111'}}>{won(raised)}<span style={{fontSize:18, fontWeight:600}}> 달성</span></div>
             <div style={{fontSize:14, color:'#888', fontWeight:500, marginBottom:4}}>목표 {won(funding.goal_amount)}</div>
           </div>
-          <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginBottom:8}}>
+          <div style={{height:6, background:'#e0e0e0', borderRadius:99, marginBottom:8}}>
             <div style={{height:6, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.5s'}} />
           </div>
-          <div style={{fontSize:13, color:'#888', marginBottom:16}}>{pct}% 달성</div>
-        </div>
-
-        <div style={{borderTop:'1px solid #f0f0f0', marginTop:4, marginBottom:20, paddingTop:14}}>
-          <div style={{fontSize:12, color:'#aaa', marginBottom:4}}>남은 금액</div>
-          <div style={{fontSize:16, fontWeight:700, color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</div>
+          <div style={{display:'flex', justifyContent:'space-between'}}>
+            <div style={{fontSize:13, color:'#888'}}>{pct}% 달성</div>
+            <div style={{fontSize:13, color:'#888'}}>남은 금액 <span style={{fontWeight:700, color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
+          </div>
         </div>
 
         {msgs.length > 0 && (
