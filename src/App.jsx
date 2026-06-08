@@ -511,7 +511,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         <div style={{padding:'24px 20px 120px', background:'#fff'}}>
           <div style={{marginBottom:24}}>
             <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 날짜</label>
-            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} type="date" value={form.birthday} onChange={e => set('birthday', e.target.value)} />
+            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box', maxWidth:'100%'}} type="date" value={form.birthday} onChange={e => set('birthday', e.target.value)} max="2099-12-31" />
           </div>
 
           <div style={{marginBottom:24}}>
