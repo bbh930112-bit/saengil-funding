@@ -129,15 +129,9 @@ export default function App() {
     setMyFundings(data || [])
   }
 
-async function kakaoLogin() {
-  await supabase.auth.signInWithOAuth({ 
-    provider: 'kakao',
-    options: { 
-      redirectTo: window.location.origin,
-      scopes: 'profile_nickname'
-    } 
-  })
-}
+  async function kakaoLogin() {
+    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+  }
 
   if (page === 'loading') return <div style={s.loading}>펀딩 접속 중...</div>
   if (page === 'home') return <HomePage onStart={() => setPage('auth')} />
@@ -186,7 +180,7 @@ function AuthPage({ onLogin, onBack }) {
       <div style={s.authLogo}>🎂</div>
       <div style={s.authTitle}>생일펀딩</div>
       <div style={s.authSub}>카카오 계정으로 시작하면<br/>바로 내 펀딩 페이지가 생겨요</div>
-      <button style={s.kakaoBtn} onClick={onLogin}><span style={{fontSize:20}}>💛</span> 카카오로 시작하기</button>
+      <button style={{...s.kakaoBtn, background:'#fff', border:'1.5px solid #e0e0e0', color:'#333'}} onClick={onLogin}><span style={{fontSize:20}}>🔵</span> 구글로 시작하기</button>
       <button onClick={onBack} style={{marginTop:20,background:'none',border:'none',color:'#aaa',fontSize:14,cursor:'pointer'}}>돌아가기</button>
     </div>
   )
