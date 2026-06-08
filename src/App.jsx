@@ -531,9 +531,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
                     style={{width:'100%', border:'1.5px solid '+color, borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:120, boxSizing:'border-box', textAlign:'center'}}
                     value={benefitDraft}
                     onChange={e => setBenefitDraft(e.target.value)}
-                    placeholder={'한 줄씩 입력해요
-예: 선물로 행복해하는 나를 볼 수 있다!
-가족들 건강하다!'}
+                    placeholder="한 줄씩 입력해요 (줄바꿈으로 구분)" 
                     autoFocus
                   />
                   <button onClick={() => {
