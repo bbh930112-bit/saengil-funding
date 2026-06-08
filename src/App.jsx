@@ -535,7 +535,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
             <div style={{display:'flex', gap:8}}>
               <div style={{flex:1, display:'flex', alignItems:'center', border:'1.5px solid '+(slugStatus==='error'?'#e74c3c':slugStatus==='ok'?'#2ecc71':'#e8e8e8'), borderRadius:12, overflow:'hidden'}}>
                 <span style={{padding:'14px 8px', fontSize:11, color:'#aaa', background:'#fafafa', borderRight:'1px solid #e8e8e8', whiteSpace:'nowrap'}}>saengilfunding.com/</span>
-                <input style={{flex:1, border:'none', padding:'14px 8px', fontSize:14, color:slugStatus==='error'?'#e74c3c':'#111', outline:'none', fontFamily:'inherit'}} placeholder="minji" value={form.slug} onChange={e => { set('slug', e.target.value.replace(/[^a-zA-Z0-9]/g,'')); setSlugStatus('') }} />
+                <input style={{flex:1, border:'none', padding:'14px 8px', fontSize:14, color:slugStatus==='error'?'#e74c3c':'#111', outline:'none', fontFamily:'inherit'}} placeholder="impoor" value={form.slug} onChange={e => { set('slug', e.target.value.replace(/[^a-zA-Z0-9]/g,'')); setSlugStatus('') }} />
               </div>
               <button onClick={checkSlug} style={{background:color, color:'#fff', border:'none', borderRadius:12, padding:'0 14px', fontSize:13, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap'}}>
                 {slugStatus==='checking'?'확인중':'중복확인'}
