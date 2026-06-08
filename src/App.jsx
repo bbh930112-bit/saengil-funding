@@ -681,24 +681,21 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       )}
 
       <div style={{padding:'20px 20px 0'}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-          <div style={{fontSize:18, fontWeight:700, color:'#111'}}>{funding.gift_name} 🎁</div>
-          {dd && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700}}>{dd}</div>}
-        </div>
-
+        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>{funding.gift_name} 🎁</div>
 
         <div style={{marginBottom:4}}>
-          <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
-            <div style={{fontSize:36, fontWeight:700, color:'#111'}}>{won(raised)}</div>
-            <div style={{fontSize:14, color:'#888', marginBottom:6}}>목표 {won(funding.goal_amount)}</div>
+          <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:10}}>
+            <div style={{fontSize:25, fontWeight:700, color:color}}>{donations.length}<span style={{fontSize:16, fontWeight:600, color:'#111'}}>명 참여</span></div>
+            {dd && <div style={{background:'#f0f0f0', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
           </div>
-          <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginTop:10, marginBottom:8}}>
+          <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
+            <div style={{fontSize:32, fontWeight:700, color:'#111'}}>{won(raised)}<span style={{fontSize:18, fontWeight:600}}> 달성</span></div>
+            <div style={{fontSize:14, color:'#888', fontWeight:500, marginBottom:4}}>목표 {won(funding.goal_amount)}</div>
+          </div>
+          <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginBottom:8}}>
             <div style={{height:6, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.5s'}} />
           </div>
-          <div style={{display:'flex', justifyContent:'space-between'}}>
-            <div style={{fontSize:13, color:color, fontWeight:600}}>{pct}% 달성</div>
-            <div style={{fontSize:13, color:'#888'}}>참여자 <span style={{fontWeight:700, color:'#111'}}>{donations.length}명</span></div>
-          </div>
+          <div style={{fontSize:13, color:'#888', marginBottom:16}}>{pct}% 달성</div>
         </div>
 
         <div style={{display:'flex', gap:12, marginTop:16, marginBottom:20}}>
