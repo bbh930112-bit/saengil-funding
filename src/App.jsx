@@ -346,7 +346,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
   return (
     <div style={{...wrap, background:'#fff'}}>
       {/* 상단 탭 */}
-      <div style={{background:color, padding:'52px 20px 0'}}>
+      <div style={{background:color, padding:'20px 20px 0', paddingTop:'calc(20px + env(safe-area-inset-top))'}}>
         <div style={{display:'flex', justifyContent:'flex-end', alignItems:'center', gap:8, marginBottom:8}}>
           <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>🏠 홈</button>
           <button onClick={async () => { await supabase.auth.signOut(); try { localStorage.removeItem(PAGE_KEY) } catch(e) {} window.location.href = '/' }} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
@@ -361,13 +361,13 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       {/* ── 1페이지 편집 ── */}
       {tab === 'page1' && (
         <div style={{paddingBottom:100}}>
-          <div style={{background:color, padding:'12px 20px 7px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+          <div style={{background:color, padding:'12px 20px 7px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:'calc(12px + env(safe-area-inset-top))'}}>
             <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:17, fontWeight:700, color:'#fff'}} isPlaceholder={!form.title} />
           </div>
 
           {form.image ? (
             <div style={{position:'relative'}}>
-              <img src={form.image} style={{width:'100%', maxHeight:280, objectFit:'cover', display:'block'}} />
+              <img src={form.image} style={{width:'100%', aspectRatio:'1/1', objectFit:'cover', display:'block'}} />
               <button onClick={() => set('image', '')} style={{position:'absolute', top:10, right:10, background:'rgba(0,0,0,0.5)', border:'none', color:'#fff', borderRadius:'50%', width:32, height:32, cursor:'pointer', fontSize:18}}>×</button>
             </div>
           ) : (
@@ -658,7 +658,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
-      <div style={{background:color, padding:'48px 20px 12px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+      <div style={{background:color, padding:'20px 20px 12px', paddingTop:'calc(20px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
           <div style={{display:'flex', gap:8, flexShrink:0, marginLeft:12}}>
@@ -669,9 +669,9 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       {funding.image ? (
-        <img src={funding.image} style={{width:'100%', maxHeight:280, objectFit:'cover', display:'block'}} />
+        <img src={funding.image} style={{width:'100%', aspectRatio:'1/1', objectFit:'cover', display:'block'}} />
       ) : (
-        <div style={{width:'100%', height:180, background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
+        <div style={{width:'100%', aspectRatio:'1/1', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <span style={{fontSize:48}}>🎁</span>
         </div>
       )}
