@@ -8,13 +8,13 @@ const COLORS = [
   { name: '스카이', main: '#8EDBFF' },
   { name: '그린', main: '#72D572' },
   { name: '브라운', main: '#C58A5C' },
-  { name: '핑크', main: '#FFABC8' },
+  { name: '핑크', main: '#fb8cac' },
   { name: '퍼플', main: '#B58CFF' },
 ]
 
 const SAMPLES = [
   { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
-  { title: '👗 입을 옷이 없어 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#FFABC8' },
+  { title: '👗 입을 옷이 없어 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
 ]
 
 const DRAFT_KEY = 'saengil_draft'
@@ -102,6 +102,7 @@ export default function App() {
   if (page === 'funding') return <FundingPage funding={funding} donations={donations} onDonate={() => goPage('donate')} onReload={() => slug && loadFunding(slug)} toast={toast} user={user} onHome={() => goPage('my')} />
   if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('funding')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
   if (page === 'done') return <DonePage onBack={() => goPage('funding')} />
+  if (page === 'privacy') return <PrivacyPage onBack={() => goPage('home')} />
   return null
 }
 
@@ -132,6 +133,9 @@ function HomePage({ onStart }) {
           )
         })}
         <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
+        <div style={{textAlign:'center', marginTop:16}}>
+          <button onClick={() => window.location.href='/privacy'} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>개인정보처리방침</button>
+        </div>
       </div>
     </div>
   )
@@ -677,23 +681,23 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       )}
 
       <div style={{padding:'20px 20px 0'}}>
-        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>{funding.gift_name} 🎁</div>
+        <div style={{fontSize:24, fontWeight:800, color:color, marginBottom:16}}>{funding.gift_name}</div>
 
         <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
-          <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:10}}>
-            <div style={{fontSize:25, fontWeight:700, color:color}}>{donations.length}<span style={{fontSize:16, fontWeight:600, color:'#111'}}>명 참여</span></div>
-            {dd && <div style={{background:'#fff', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
+          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
+            <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:16, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
+            {dd && <div style={{background:'#fff', color:'#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:600, border:'1px solid #e8e8e8'}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
           </div>
-          <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
-            <div style={{fontSize:32, fontWeight:700, color:'#111'}}>{won(raised)}<span style={{fontSize:18, fontWeight:600}}> 달성</span></div>
-            <div style={{fontSize:14, color:'#888', fontWeight:500, marginBottom:4}}>목표 {won(funding.goal_amount)}</div>
+          <div style={{display:'flex', alignItems:'flex-end', gap:8, marginBottom:12}}>
+            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
+            <div style={{fontSize:16, fontWeight:600, color:'#888', marginBottom:4}}>달성</div>
           </div>
-          <div style={{height:6, background:'#e0e0e0', borderRadius:99, marginBottom:8}}>
-            <div style={{height:6, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.5s'}} />
+          <div style={{height:5, background:'#e8e8e8', borderRadius:99, marginBottom:10}}>
+            <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.6s ease'}} />
           </div>
           <div style={{display:'flex', justifyContent:'space-between'}}>
-            <div style={{fontSize:13, color:'#888'}}>{pct}% 달성</div>
-            <div style={{fontSize:13, color:'#888'}}>남은 금액 <span style={{fontWeight:700, color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
+            <div style={{fontSize:12, color:'#aaa'}}>목표 {won(funding.goal_amount)} · {pct}% 달성</div>
+            <div style={{fontSize:12, color:'#aaa'}}>남은 금액 <span style={{fontWeight:700, color:'#555'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
           </div>
         </div>
 
@@ -710,7 +714,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       <div style={{position:'fixed', bottom:0, left:'50%', transform:'translateX(-50%)', width:'100%', maxWidth:430, padding:'12px 20px 24px', background:'#fff', borderTop:'1px solid #f0f0f0', zIndex:100}}>
-        <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={onDonate}>후원하기 🎉</button>
+        <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(0,0,0,0.18)'}} onClick={onDonate}>후원하기 🎉</button>
       </div>
 
       {toast && <div style={{position:'fixed', bottom:90, left:'50%', transform:'translateX(-50%)', background:'#222', color:'#fff', borderRadius:10, padding:'12px 20px', fontSize:14, fontWeight:500, zIndex:9999, whiteSpace:'nowrap'}}>{toast}</div>}
@@ -770,7 +774,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
           <>
             <div style={{background:'#f0fff4', border:'1px solid #69d98c', borderRadius:14, padding:18, marginBottom:24, textAlign:'center'}}>
               <div style={{fontSize:15, fontWeight:700, color:'#2a8a4a', marginBottom:4}}>후원이 완료되었습니다!</div>
-              <div style={{fontSize:13, color:'#555'}}>축하 한마디를 남겨 주세요 💚</div>
+              <div style={{fontSize:13, color:'#555'}}>축하 한마디를 남겨 주세요!</div>
             </div>
             <div style={{marginBottom:24}}>
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디 <span style={{fontSize:11, color:'#aaa'}}>선택</span></label>
@@ -792,6 +796,43 @@ function DonePage({ onBack }) {
       <div style={{fontSize:56, marginBottom:16}}>🎉</div>
       <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:32, textAlign:'center'}}>후원 완료!</div>
       <button style={{background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>후원 현황 확인</button>
+    </div>
+  )
+}
+
+function PrivacyPage({ onBack }) {
+  return (
+    <div style={wrap}>
+      <div style={{background:'#69B7FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+        <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:14, cursor:'pointer'}}>←</button>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>개인정보처리방침</div>
+      </div>
+      <div style={{padding:'24px 20px 60px', fontSize:14, color:'#444', lineHeight:1.8}}>
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:16}}>생일펀딩 개인정보처리방침</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>1. 수집하는 개인정보 항목</div>
+        <div style={{marginBottom:16}}>Google 로그인 시 이름, 이메일 주소를 수집합니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>2. 개인정보 수집 및 이용 목적</div>
+        <div style={{marginBottom:16}}>서비스 이용자 식별 및 펀딩 페이지 관리 목적으로만 사용됩니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>3. 개인정보 보유 및 이용 기간</div>
+        <div style={{marginBottom:16}}>서비스 탈퇴 시 또는 수집 목적 달성 후 즉시 파기합니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>4. 개인정보 제3자 제공</div>
+        <div style={{marginBottom:16}}>이용자의 개인정보를 제3자에게 제공하지 않습니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>5. 개인정보 처리 위탁</div>
+        <div style={{marginBottom:16}}>Google Firebase, Supabase를 통해 인증 서비스를 운영합니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>6. 이용자 권리</div>
+        <div style={{marginBottom:16}}>이용자는 언제든지 개인정보 열람, 수정, 삭제를 요청할 수 있습니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>7. 문의</div>
+        <div style={{marginBottom:16}}>개인정보 관련 문의는 saengilfunding.com 을 통해 연락 주세요.</div>
+
+        <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
+      </div>
     </div>
   )
 }
