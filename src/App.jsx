@@ -2,10 +2,14 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
 
 const COLORS = [
-  { name: 'Cloudy Sky', main: '#BAD6FD' },
-  { name: 'Merlot', main: '#570301' },
-  { name: 'Rose Mist', main: '#F5BAD5' },
-  { name: 'Butter Cream', main: '#F7E594' },
+  { name: '오렌지', main: '#FF9F5A' },
+  { name: '옐로우', main: '#FFD95A' },
+  { name: '블루', main: '#69B7FF' },
+  { name: '스카이', main: '#8EDBFF' },
+  { name: '그린', main: '#72D572' },
+  { name: '브라운', main: '#C58A5C' },
+  { name: '핑크', main: '#FFABC8' },
+  { name: '퍼플', main: '#B58CFF' },
 ]
 
 function won(n) {
@@ -157,7 +161,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
   const saved = (() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) || {} } catch { return {} } })()
   const [form, setForm] = useState({
     title: '', gift_name: '', sub_message: '', goal_amount: '', benefit_message: '',
-    kakao_link: '', slug: '', birthday: '', color: '#3D8BFF', ...saved
+    kakao_link: '', slug: '', birthday: '', color: '#FF9F5A', image: '', ...saved
   })
   const [step, setStep] = useState('preview') // preview | settings
   const [loading, setLoading] = useState(false)
@@ -191,7 +195,7 @@ function CreatePage({ user, onBack, onDone, showToast }) {
       sub_message: form.sub_message, goal_amount: parseInt(form.goal_amount),
       benefit_message: form.benefit_message, kakao_link: form.kakao_link,
       slug: form.slug.toLowerCase(), birthday: form.birthday || null,
-      color: form.color
+      color: form.color, image: form.image || null
     })
     setLoading(false)
     if (error) { showToast('오류가 발생했어요. 다시 시도해 주세요'); return }
@@ -209,58 +213,92 @@ function CreatePage({ user, onBack, onDone, showToast }) {
       </div>
 
       {step === 'preview' ? (
-        <div>
-          {/* 헤더 미리보기 - 직접 편집 */}
-          <div style={{background:color,padding:'20px 24px 28px',color:'#fff'}}>
-            <button onClick={onBack} style={{background:'none',border:'none',color:'rgba(255,255,255,0.7)',fontSize:14,cursor:'pointer',padding:0,marginBottom:12}}>← 돌아가기</button>
-            <div style={{fontSize:11,color:'rgba(255,255,255,0.7)',marginBottom:8}}>✏️ 텍스트를 눌러서 직접 수정해요</div>
-            {form.birthday && <div style={{display:'inline-block',background:'rgba(255,255,255,0.2)',color:'#fff',borderRadius:20,padding:'4px 12px',fontSize:12,fontWeight:600,marginBottom:12}}>{dday(form.birthday) || 'D-?'}</div>}
-            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩" style={{fontSize:22,fontWeight:700,color:'#fff',marginBottom:6,display:'block'}} />
-            <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름을 입력해요" style={{fontSize:14,color:'rgba(255,255,255,0.85)',display:'block',marginBottom:4}} />
-            <EditableText value={form.sub_message} onChange={v => set('sub_message', v)} placeholder="한 줄 멘트를 입력해요" style={{fontSize:13,color:'rgba(255,255,255,0.75)',display:'block'}} multiline />
+        <div style={{paddingBottom:100}}>
+          {/* 헤더 */}
+          <div style={{background:color,padding:'16px 20px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <button onClick={onBack} style={{background:'none',border:'none',color:'#fff',fontSize:14,cursor:'pointer',padding:0,fontWeight:600}}>← 돌아가기</button>
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.8)'}}>✏️ 텍스트를 눌러 수정해요</div>
           </div>
 
-          {/* 금액 미리보기 */}
+          {/* 이미지 */}
+          {form.image ? (
+            <div style={{position:'relative'}}>
+              <img src={form.image} style={{width:'100%',maxHeight:280,objectFit:'cover',display:'block'}} />
+              <button onClick={() => set('image', '')} style={{position:'absolute',top:10,right:10,background:'rgba(0,0,0,0.5)',border:'none',color:'#fff',borderRadius:'50%',width:32,height:32,cursor:'pointer',fontSize:16}}>×</button>
+            </div>
+          ) : (
+            <label style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:200,cursor:'pointer',background:'#f0f0f0',gap:8}}>
+              <span style={{fontSize:36}}>📷</span>
+              <span style={{fontSize:13,color:'#888',fontWeight:600}}>선물 사진 추가하기</span>
+              <input type="file" accept="image/*" style={{display:'none'}} onChange={e => {
+                const file = e.target.files[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = ev => set('image', ev.target.result)
+                reader.readAsDataURL(file)
+              }} />
+            </label>
+          )}
+
+          {/* 선물 정보 */}
           <div style={{padding:'20px 20px 0'}}>
-            <div style={{background:'#fff',borderRadius:16,padding:20,marginBottom:12}}>
-              <div style={{fontSize:12,color:'#888',marginBottom:4}}>지금까지 모인 금액</div>
-              <div style={{fontSize:28,fontWeight:700,color:color}}>0원</div>
-              <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
-                <div style={{fontSize:13,color:'#aaa'}}>목표 <EditableText value={form.goal_amount} onChange={v => set('goal_amount', v.replace(/[^0-9]/g,''))} placeholder="목표금액" style={{fontSize:13,color:color,fontWeight:600,display:'inline'}} /></div>
-                <div style={{fontSize:13,color:'#aaa'}}>0% 달성</div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+              <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:20,fontWeight:700,color:'#111'}} />
+              {form.birthday && <div style={{background:color,color:'#fff',borderRadius:20,padding:'4px 14px',fontSize:13,fontWeight:700,whiteSpace:'nowrap',marginLeft:8}}>{dday(form.birthday)||'D-?'}</div>}
+            </div>
+            <EditableText value={form.sub_message} onChange={v => set('sub_message', v)} placeholder="한 줄 멘트를 입력해요" style={{fontSize:14,color:'#666',marginBottom:16,display:'block'}} multiline />
+
+            {/* 제목 */}
+            <div style={{marginBottom:12}}>
+              <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:13,color:'#aaa',display:'block'}} />
+            </div>
+
+            {/* 금액 */}
+            <div style={{marginBottom:4}}>
+              <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between'}}>
+                <div style={{fontSize:36,fontWeight:700,color:'#111'}}>0원</div>
+                <div style={{fontSize:14,color:'#888',marginBottom:6}}>목표 <EditableText value={form.goal_amount} onChange={v => set('goal_amount', v.replace(/[^0-9]/g,''))} placeholder="목표금액 입력" style={{fontSize:14,color:color,fontWeight:700,display:'inline'}} /></div>
               </div>
-              <div style={{height:6,background:'#f0f0f0',borderRadius:99,marginTop:12}}>
+              <div style={{height:6,background:'#f0f0f0',borderRadius:99,marginTop:8,marginBottom:8}}>
                 <div style={{height:6,background:color,borderRadius:99,width:'0%'}} />
               </div>
-              <div style={{display:'flex',gap:12,marginTop:16}}>
-                <div style={{flex:1,background:'#f8f8f8',borderRadius:12,padding:'12px 16px'}}>
-                  <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>남은 금액</div>
-                  <div style={{fontSize:15,fontWeight:700,color:'#111'}}>{form.goal_amount ? won(form.goal_amount) : '—'}</div>
-                </div>
-                <div style={{flex:1,background:'#f8f8f8',borderRadius:12,padding:'12px 16px'}}>
-                  <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>평균 참여금액</div>
-                  <div style={{fontSize:15,fontWeight:700,color:'#111'}}>—</div>
-                </div>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
+                <div style={{fontSize:13,color:color,fontWeight:600}}>0% 달성</div>
+                <div style={{fontSize:13,color:'#888'}}>참여자 <span style={{fontWeight:700,color:'#111'}}>0명</span></div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12,marginTop:16,marginBottom:20}}>
+              <div style={{flex:1,border:'1px solid #f0f0f0',borderRadius:14,padding:'14px 16px'}}>
+                <div style={{fontSize:12,color:'#aaa',marginBottom:6}}>남은 금액</div>
+                <div style={{fontSize:16,fontWeight:700,color:'#111'}}>{form.goal_amount ? won(form.goal_amount) : '—'}</div>
+              </div>
+              <div style={{flex:1,border:'1px solid #f0f0f0',borderRadius:14,padding:'14px 16px'}}>
+                <div style={{fontSize:12,color:'#aaa',marginBottom:6}}>평균 참여금액</div>
+                <div style={{fontSize:16,fontWeight:700,color:'#111'}}>—</div>
               </div>
             </div>
 
             {/* 혜택 멘트 */}
-            <div style={{background:'#fff',borderRadius:16,padding:20,marginBottom:12}}>
-              <div style={{fontSize:13,fontWeight:700,color:color,marginBottom:6}}>지금 후원하시면 특별한 혜택을 드려요!</div>
-              <EditableText value={form.benefit_message} onChange={v => set('benefit_message', v)} placeholder="후원 혜택 멘트를 입력해요" style={{fontSize:14,color:'#444',display:'block'}} multiline />
+            <div style={{background:'#f8f8f8',borderRadius:14,padding:'14px 16px',marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:700,color:color,marginBottom:4}}>지금 후원하시면 특별한 혜택을 드려요!</div>
+              <EditableText value={form.benefit_message} onChange={v => set('benefit_message', v)} placeholder="후원 혜택 멘트를 입력해요" style={{fontSize:13,color:'#555',display:'block'}} multiline />
             </div>
 
             {/* 컬러 선택 */}
-            <div style={{background:'#fff',borderRadius:16,padding:20,marginBottom:20}}>
+            <div style={{background:'#f8f8f8',borderRadius:14,padding:'14px 16px',marginBottom:20}}>
               <div style={{fontSize:13,fontWeight:700,color:'#333',marginBottom:12}}>메인 컬러 선택</div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
                 {COLORS.map(c => (
-                  <button key={c.main} onClick={() => set('color', c.main)} style={{width:40,height:40,borderRadius:'50%',background:c.main,border:form.color===c.main?'3px solid #222':'3px solid transparent',cursor:'pointer',transition:'transform 0.1s',transform:form.color===c.main?'scale(1.15)':'scale(1)'}} title={c.name} />
+                  <button key={c.main} onClick={() => set('color', c.main)} style={{width:40,height:40,borderRadius:'50%',background:c.main,border:form.color===c.main?'3px solid #333':'3px solid transparent',cursor:'pointer',transform:form.color===c.main?'scale(1.2)':'scale(1)',transition:'transform 0.15s'}} title={c.name} />
                 ))}
               </div>
             </div>
+          </div>
 
-            <button style={{display:'block',width:'100%',background:color,color:'#fff',border:'none',borderRadius:14,padding:'17px 0',fontSize:16,fontWeight:700,cursor:'pointer',marginBottom:32}} onClick={() => setStep('settings')}>
+          {/* 하단 고정 버튼 */}
+          <div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,padding:'12px 20px 24px',background:'#fff',borderTop:'1px solid #f0f0f0'}}>
+            <button style={{display:'block',width:'100%',background:color,color:'#fff',border:'none',borderRadius:14,padding:'17px 0',fontSize:16,fontWeight:700,cursor:'pointer'}} onClick={() => setStep('settings')}>
               다음 → 링크 설정
             </button>
           </div>
@@ -375,7 +413,7 @@ function FundingPage({ funding, donations, onDonate, onBack, onReload, toast }) 
   useEffect(() => { onReload && onReload() }, [])
   if (!funding) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,color:'#888',fontFamily:'Pretendard,sans-serif'}}>펀딩 접속 중...</div>
 
-  const color = funding.color || '#3D8BFF'
+  const color = funding.color || '#69B7FF'
   const raised = donations.reduce((a, d) => a + (Number(d.amount) || 0), 0)
   const pct = funding.goal_amount ? Math.round((raised / funding.goal_amount) * 100) : 0
   const dd = dday(funding.birthday)
@@ -383,49 +421,68 @@ function FundingPage({ funding, donations, onDonate, onBack, onReload, toast }) 
   const avg = donations.length > 0 ? Math.round(raised / donations.length) : 0
 
   return (
-    <div style={{minHeight:'100vh',background:'#f5f5f5',fontFamily:'Pretendard,sans-serif',maxWidth:430,margin:'0 auto',overflowX:'hidden'}}>
-      <div style={{background:color,padding:'52px 24px 28px',color:'#fff'}}>
-        <button style={{background:'none',border:'none',color:'rgba(255,255,255,0.7)',fontSize:14,cursor:'pointer',padding:0,marginBottom:8}} onClick={onBack}>← 돌아가기</button>
-        {dd && <div style={{display:'inline-block',background:'rgba(255,255,255,0.2)',color:'#fff',borderRadius:20,padding:'4px 12px',fontSize:12,fontWeight:600,marginBottom:12,marginLeft:8}}>{dd}</div>}
-        <div style={{fontSize:22,fontWeight:700,color:'#fff',marginBottom:4}}>{funding.title}</div>
-        <div style={{fontSize:14,color:'rgba(255,255,255,0.85)'}}>{funding.gift_name}</div>
-        {funding.sub_message && <div style={{fontSize:13,color:'rgba(255,255,255,0.75)',marginTop:6}}>{funding.sub_message}</div>}
-      </div>
+    <div style={{minHeight:'100vh',background:'#fff',fontFamily:'Pretendard,sans-serif',maxWidth:430,margin:'0 auto',overflowX:'hidden',paddingBottom:100}}>
+      {/* 상단 헤더 */}
+      <div style={{background:color,padding:'52px 20px 16px'}} />
 
-      <div style={{padding:'20px 20px 40px'}}>
-        <div style={{background:'#fff',borderRadius:16,padding:20,marginBottom:12}}>
-          <div style={{fontSize:12,color:'#888',marginBottom:4}}>지금까지 모인 금액</div>
-          <div style={{fontSize:32,fontWeight:700,color:color}}>{won(raised)}</div>
-          <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
-            <div style={{fontSize:13,color:'#aaa'}}>목표 {won(funding.goal_amount)}</div>
-            <div style={{fontSize:13,color:'#aaa'}}>{pct}% 달성</div>
+      {/* 이미지 */}
+      {funding.image && (
+        <div style={{width:'100%',background:'#f8f8f8'}}>
+          <img src={funding.image} style={{width:'100%',maxHeight:280,objectFit:'cover',display:'block'}} />
+        </div>
+      )}
+      {!funding.image && (
+        <div style={{width:'100%',height:200,background:'#f0f0f0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <span style={{fontSize:48}}>🎁</span>
+        </div>
+      )}
+
+      {/* 선물 정보 */}
+      <div style={{padding:'20px 20px 0'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+          <div style={{fontSize:20,fontWeight:700,color:'#111'}}>{funding.gift_name} 🎁</div>
+          {dd && <div style={{background:color,color:'#fff',borderRadius:20,padding:'4px 14px',fontSize:13,fontWeight:700}}>{dd}</div>}
+        </div>
+        {funding.sub_message && <div style={{fontSize:14,color:'#666',marginBottom:16}}>{funding.sub_message}</div>}
+
+        {/* 금액 */}
+        <div style={{marginBottom:4}}>
+          <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between'}}>
+            <div style={{fontSize:36,fontWeight:700,color:'#111'}}>{won(raised)}</div>
+            <div style={{fontSize:14,color:'#888',marginBottom:6}}>목표 {won(funding.goal_amount)}</div>
           </div>
-          <div style={{height:6,background:'#f0f0f0',borderRadius:99,marginTop:12}}>
+          <div style={{height:6,background:'#f0f0f0',borderRadius:99,marginTop:8,marginBottom:8}}>
             <div style={{height:6,background:color,borderRadius:99,width:Math.min(pct,100)+'%',transition:'width 0.5s'}} />
           </div>
-          <div style={{display:'flex',gap:12,marginTop:16}}>
-            <div style={{flex:1,background:'#f8f8f8',borderRadius:12,padding:'12px 16px'}}>
-              <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>남은 금액</div>
-              <div style={{fontSize:15,fontWeight:700,color:'#111'}}>{won(Math.max(0, (funding.goal_amount||0) - raised))}</div>
-            </div>
-            <div style={{flex:1,background:'#f8f8f8',borderRadius:12,padding:'12px 16px'}}>
-              <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>평균 참여금액</div>
-              <div style={{fontSize:15,fontWeight:700,color:'#111'}}>{avg > 0 ? won(avg) : '—'}</div>
-            </div>
+          <div style={{display:'flex',justifyContent:'space-between'}}>
+            <div style={{fontSize:13,color:color,fontWeight:600}}>{pct}% 달성</div>
+            <div style={{fontSize:13,color:'#888'}}>참여자 <span style={{fontWeight:700,color:'#111'}}>{donations.length}명</span></div>
           </div>
         </div>
 
+        {/* 남은금액 / 평균 박스 */}
+        <div style={{display:'flex',gap:12,marginTop:16,marginBottom:20}}>
+          <div style={{flex:1,border:'1px solid #f0f0f0',borderRadius:14,padding:'14px 16px'}}>
+            <div style={{fontSize:12,color:'#aaa',marginBottom:6}}>남은 금액</div>
+            <div style={{fontSize:16,fontWeight:700,color:'#111'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</div>
+          </div>
+          <div style={{flex:1,border:'1px solid #f0f0f0',borderRadius:14,padding:'14px 16px'}}>
+            <div style={{fontSize:12,color:'#aaa',marginBottom:6}}>평균 참여금액</div>
+            <div style={{fontSize:16,fontWeight:700,color:'#111'}}>{avg > 0 ? won(avg) : '—'}</div>
+          </div>
+        </div>
+
+        {/* 혜택 */}
         {funding.benefit_message && (
-          <div style={{background:'#fff',borderRadius:16,padding:20,marginBottom:12}}>
-            <div style={{fontSize:13,fontWeight:700,color:color,marginBottom:6}}>지금 후원하시면 특별한 혜택을 드려요!</div>
-            <div style={{fontSize:14,color:'#444'}}>{funding.benefit_message}</div>
+          <div style={{background:'#f8f8f8',borderRadius:14,padding:'14px 16px',marginBottom:16}}>
+            <div style={{fontSize:13,fontWeight:700,color:color,marginBottom:4}}>지금 후원하시면 특별한 혜택을 드려요!</div>
+            <div style={{fontSize:13,color:'#555'}}>{funding.benefit_message}</div>
           </div>
         )}
 
-        <button style={{display:'block',width:'100%',background:color,color:'#fff',border:'none',borderRadius:14,padding:'17px 0',fontSize:16,fontWeight:700,cursor:'pointer',marginBottom:12}} onClick={onDonate}>💛 후원하기</button>
-
+        {/* 메시지 */}
         {msgs.length > 0 && (
-          <div style={{background:'#fff',borderRadius:16,padding:20}}>
+          <div style={{marginBottom:16}}>
             <button onClick={() => setMsgOpen(!msgOpen)} style={{background:'none',border:'none',color:color,fontSize:14,fontWeight:600,cursor:'pointer',padding:0}}>
               🎂 생일 축하 메시지 {msgOpen ? '▲' : '▼'}
             </button>
@@ -435,7 +492,13 @@ function FundingPage({ funding, donations, onDonate, onBack, onReload, toast }) 
           </div>
         )}
       </div>
-      {toast && <div style={{position:'fixed',bottom:32,left:'50%',transform:'translateX(-50%)',background:'#222',color:'#fff',borderRadius:10,padding:'12px 20px',fontSize:14,fontWeight:500,zIndex:9999,whiteSpace:'nowrap'}}>{toast}</div>}
+
+      {/* 하단 고정 버튼 */}
+      <div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,padding:'12px 20px 24px',background:'#fff',borderTop:'1px solid #f0f0f0'}}>
+        <button style={{display:'block',width:'100%',background:color,color:'#fff',border:'none',borderRadius:14,padding:'17px 0',fontSize:16,fontWeight:700,cursor:'pointer'}} onClick={onDonate}>후원하기 🎉</button>
+      </div>
+
+      {toast && <div style={{position:'fixed',bottom:90,left:'50%',transform:'translateX(-50%)',background:'#222',color:'#fff',borderRadius:10,padding:'12px 20px',fontSize:14,fontWeight:500,zIndex:9999,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
 }
