@@ -13,8 +13,8 @@ const COLORS = [
 ]
 
 const SAMPLES = [
-  { title: '🎂 지수의 생일 펀딩', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
-  { title: '🎸 현우의 생일 펀딩', gift: '기타 앰프', goal: 200000, raised: 80000, dday: 14, color: '#FFABC8' },
+  { title: '🎧 출근길 허전함을 채우는 후원.', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
+  { title: '👗 입을 옷이 없어 비키니 입고 다님.', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#FFABC8' },
 ]
 
 const DRAFT_KEY = 'saengil_draft'
@@ -110,8 +110,8 @@ function HomePage({ onStart }) {
     <div style={wrap}>
       <div style={{background:'#69B7FF', padding:'52px 24px 28px', color:'#fff'}}>
         <div style={{fontSize:13, fontWeight:500, opacity:0.85, marginBottom:6}}>🎂 생일펀딩</div>
-        <div style={{fontSize:26, fontWeight:700, marginBottom:4}}>생일 선물,<br/>직접 받고 싶은 걸 받아요</div>
-        <div style={{fontSize:13, opacity:0.8}}>내가 원하는 선물을 펀딩받는 가장 쉬운 방법</div>
+        <div style={{fontSize:26, fontWeight:700, marginBottom:4}}>생일 선물,<br/>큰 거 하나 받고 싶다</div>
+        <div style={{fontSize:13, opacity:0.8}}>자잘한 선물은 이제 그만 능동적으로 비싼 선물을 얻어내자</div>
       </div>
       <div style={{padding:'0 20px 40px'}}>
         <div style={{fontSize:12, color:'#888', fontWeight:500, marginTop:28, marginBottom:12}}>이런 펀딩들이 있어요</div>
