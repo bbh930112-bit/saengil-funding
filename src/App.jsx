@@ -386,32 +386,21 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
           )}
 
           <div style={{padding:'20px 20px 0'}}>
-            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
+            <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>
               <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:18, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
-              {form.birthday && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700, marginLeft:8, whiteSpace:'nowrap'}}>{dday(form.birthday)||'D-?'}</div>}
             </div>
 
-
             <div style={{marginBottom:4}}>
-              <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-                <div style={{fontSize:25, fontWeight:700, color:'#111'}}>0명 참여</div>
-                <div style={{fontSize:14, color:'#888', display:'flex', alignItems:'center', gap:4}}>
-                  목표
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={form.goal_amount}
-                    onChange={e => set('goal_amount', e.target.value.replace(/[^0-9]/g,''))}
-                    placeholder="목표금액"
-                    style={{width:100, border:'none', borderBottom:'1.5px solid '+color, outline:'none', fontFamily:'inherit', fontSize:14, color:color, fontWeight:700, textAlign:'right', background:'transparent'}}
-                  />
-                  원
-                </div>
+              <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:10}}>
+                <div style={{fontSize:25, fontWeight:700, color:color}}>0<span style={{fontSize:16, fontWeight:600, color:'#111'}}>명 참여</span></div>
+                {form.birthday && <div style={{background:'#f0f0f0', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dday(form.birthday)||'D-?'}</div>}
               </div>
               <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
-                <div style={{fontSize:36, fontWeight:700, color:'#111'}}>0원 달성</div>
-                <div style={{fontSize:14, color:color, fontWeight:600, marginBottom:6}}>0% 달성</div>
+                <div style={{fontSize:32, fontWeight:700, color:'#111'}}>0원<span style={{fontSize:18, fontWeight:600}}> 달성</span></div>
+                <div style={{fontSize:14, color:'#888', fontWeight:500, marginBottom:4}}>
+                  목표
+                  <input type="number" inputMode="numeric" pattern="[0-9]*" value={form.goal_amount} onChange={e => set('goal_amount', e.target.value.replace(/[^0-9]/g,''))} placeholder="목표금액" style={{width:90, border:'none', borderBottom:'1.5px solid '+color, outline:'none', fontFamily:'inherit', fontSize:14, color:color, fontWeight:700, textAlign:'right', background:'transparent', marginLeft:4}} />원
+                </div>
               </div>
               <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginBottom:8}}>
                 <div style={{height:6, background:color, borderRadius:99, width:'0%'}} />
