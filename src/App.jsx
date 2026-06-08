@@ -363,7 +363,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         <div style={{paddingBottom:100}}>
           <div style={{background:color, padding:'20px 20px 24px', color:'#fff'}}>
             <div style={{fontSize:11, color:'rgba(255,255,255,0.75)', marginBottom:10}}>✏️ 텍스트를 눌러 직접 수정해요</div>
-            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:22, fontWeight:700, color:'#fff', display:'block'}} isPlaceholder={!form.title} />
+            <EditableText value={form.title} onChange={v => set('title', v)} placeholder="🎂 나의 생일 펀딩 (대제목)" style={{fontSize:14, fontWeight:600, color:'#fff', display:'block', opacity:0.9}} isPlaceholder={!form.title} />
           </div>
 
           {form.image ? (
@@ -387,7 +387,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
           <div style={{padding:'20px 20px 0'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-              <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:20, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
+              <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:18, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
               {form.birthday && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700, marginLeft:8, whiteSpace:'nowrap'}}>{dday(form.birthday)||'D-?'}</div>}
             </div>
             <div style={{marginBottom:20}}>
@@ -682,7 +682,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
         {user && onHome && (
           <button onClick={onHome} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer', marginBottom:12}}>🏠 홈</button>
         )}
-        <div style={{fontSize:22, fontWeight:700, color:'#fff'}}>{funding.title}</div>
+        <div style={{fontSize:14, fontWeight:600, color:'#fff', opacity:0.9}}>{funding.title}</div>
       </div>
 
       {funding.image ? (
@@ -695,7 +695,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
       <div style={{padding:'20px 20px 0'}}>
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
-          <div style={{fontSize:20, fontWeight:700, color:'#111'}}>{funding.gift_name} 🎁</div>
+          <div style={{fontSize:18, fontWeight:700, color:'#111'}}>{funding.gift_name} 🎁</div>
           {dd && <div style={{background:color, color:'#fff', borderRadius:20, padding:'4px 14px', fontSize:13, fontWeight:700}}>{dd}</div>}
         </div>
         {funding.sub_message && <div style={{fontSize:14, color:'#666', marginBottom:20}}>{funding.sub_message}</div>}
@@ -824,9 +824,8 @@ function DonePage({ onBack }) {
   return (
     <div style={{...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:32}}>
       <div style={{fontSize:56, marginBottom:16}}>🎉</div>
-      <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:8, textAlign:'center'}}>이 은혜 잊지 않겠습니다</div>
-      <div style={{fontSize:14, color:'#888', marginBottom:32, textAlign:'center'}}>후원해 주셔서 진심으로 감사해요</div>
-      <button style={{background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>펀딩 페이지로 돌아가기</button>
+      <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:32, textAlign:'center'}}>후원 완료!</div>
+      <button style={{background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>후원 현황 확인</button>
     </div>
   )
 }
