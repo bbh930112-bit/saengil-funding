@@ -1,3 +1,11 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "saengil-funding.vercel.app" }],
+      "destination": "https://saengilfunding.com/:path*",
+      "permanent": true
+    }
+  ]
 }
