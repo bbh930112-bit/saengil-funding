@@ -658,7 +658,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
-      <div style={{background:color, padding:'20px 20px 20px', paddingTop:'calc(20px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 6px 16px rgba(0,0,0,0.2)', position:'relative', zIndex:10}}>
+      <div style={{background:color, padding:'20px 20px 20px', paddingTop:'calc(20px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 6px 16px rgba(0,0,0,0.2)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
           <div style={{display:'flex', gap:8, flexShrink:0, marginLeft:12}}>
