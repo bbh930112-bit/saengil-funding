@@ -38,25 +38,6 @@ function dday(dateStr) {
 
 const wrap = { minHeight:'100vh', background:'#fff', fontFamily:"'Pretendard',sans-serif", maxWidth:430, margin:'0 auto', overflowX:'hidden' }
 
-function EditableText({ value, onChange, style, placeholder, multiline }) {
-  const [editing, setEditing] = useState(false)
-  const ref = useRef()
-  useEffect(() => { if (editing && ref.current) ref.current.focus() }, [editing])
-  if (editing) {
-    const isLight = style.color && (style.color === '#111' || style.color === '#666' || style.color === '#333')
-    const s = { ...style, background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)', border: isLight ? '2px dashed #aaa' : '2px dashed rgba(255,255,255,0.8)', borderRadius:8, outline:'none', fontFamily:'inherit', width:'100%', boxSizing:'border-box', padding:'4px 8px', color: style.color || '#111' }
-    return multiline
-      ? <textarea ref={ref} style={{...s, resize:'none', minHeight:60}} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
-      : <input ref={ref} style={s} value={value} onChange={e => onChange(e.target.value)} onBlur={() => setEditing(false)} />
-  }
-  return (
-    <div onClick={() => setEditing(true)} style={{...style, cursor:'pointer', borderBottom:'1.5px dashed rgba(255,255,255,0.5)', paddingBottom:2, display:'inline-block', minWidth:40}}>
-      {value || <span style={{opacity:0.45}}>{placeholder}</span>}
-      <span style={{fontSize:10, opacity:0.6, marginLeft:4}}>✏️</span>
-    </div>
-  )
-}
-
 export default function App() {
   const [page, setPage] = useState('loading')
   const [user, setUser] = useState(null)
