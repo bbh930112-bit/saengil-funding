@@ -393,10 +393,10 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
 
             <div style={{marginBottom:4}}>
-              <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between'}}>
-                <div style={{fontSize:36, fontWeight:700, color:'#111'}}>0원</div>
-                <div style={{fontSize:14, color:'#888', marginBottom:6, display:'flex', alignItems:'center', gap:4}}>
-                  <span>목표</span>
+              <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
+                <div style={{fontSize:25, fontWeight:700, color:'#111'}}>0명 참여</div>
+                <div style={{fontSize:14, color:'#888', display:'flex', alignItems:'center', gap:4}}>
+                  목표
                   <input
                     type="number"
                     inputMode="numeric"
@@ -406,15 +406,15 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
                     placeholder="목표금액"
                     style={{width:100, border:'none', borderBottom:'1.5px solid '+color, outline:'none', fontFamily:'inherit', fontSize:14, color:color, fontWeight:700, textAlign:'right', background:'transparent'}}
                   />
-                  <span>원</span>
+                  원
                 </div>
               </div>
-              <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginTop:10, marginBottom:8}}>
-                <div style={{height:6, background:color, borderRadius:99, width:'0%'}} />
+              <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
+                <div style={{fontSize:36, fontWeight:700, color:'#111'}}>0원 달성</div>
+                <div style={{fontSize:14, color:color, fontWeight:600, marginBottom:6}}>0% 달성</div>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
-                <div style={{fontSize:13, color:color, fontWeight:600}}>0% 달성</div>
-                <div style={{fontSize:13, color:'#888'}}>참여자 <span style={{fontWeight:700, color:'#111'}}>0명</span></div>
+              <div style={{height:6, background:'#f0f0f0', borderRadius:99, marginBottom:8}}>
+                <div style={{height:6, background:color, borderRadius:99, width:'0%'}} />
               </div>
             </div>
 
