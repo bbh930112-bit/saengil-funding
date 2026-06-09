@@ -142,7 +142,6 @@ function HomePage({ onStart, onPrivacy }) {
 }
 
 function EditableText({ value, onChange, style, placeholder, multiline, isPlaceholder }) {
-  // isPlaceholder=true이면 예시텍스트(처음엔 비워서 시작), false면 실제값
   const [editing, setEditing] = useState(false)
   const [inputVal, setInputVal] = useState(isPlaceholder ? '' : value)
   const ref = useRef()
@@ -184,16 +183,19 @@ function AuthPage({ onLogin, onBack }) {
       <div style={{fontSize:24, fontWeight:700, color:'#111', marginBottom:8}}>생일펀딩</div>
       <div style={{fontSize:14, color:'#888', marginBottom:40, textAlign:'center'}}>구글 계정으로 시작하면<br/>바로 내 펀딩 페이지가 생겨요</div>
       <button style={{display:'flex', alignItems:'center', justifyContent:'center', gap:10, width:'100%', maxWidth:320, background:'#fff', border:'1.5px solid #e0e0e0', color:'#333', borderRadius:14, padding:'16px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={onLogin}>
-        <span style={{fontSize:18}}>G</span> 구글로 시작하기
+        <svg width="20" height="20" viewBox="0 0 48 48" style={{flexShrink:0}}>
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        <span>구글로 시작하기</span>
       </button>
       <button onClick={onBack} style={{marginTop:20, background:'none', border:'none', color:'#aaa', fontSize:14, cursor:'pointer'}}>돌아가기</button>
     </div>
   )
 }
 
-// ─── CreatePage ───────────────────────────────────────────────────────────────
-// 탭: 미리보기1 | 미리보기2 | 링크설정
-// 미리보기1 → 다음 → 미리보기2 → 다음 → 링크설정 → 펀딩 만들기
 function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }) {
   const saved = (() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) || {} } catch { return {} } })()
   const savedTab = (() => { try { return localStorage.getItem(DRAFT_KEY + '_tab') || 'page1' } catch { return 'page1' } })()
@@ -227,7 +229,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     }
   }
   const [form, setForm] = useState(getInitialForm)
-  const [tab, setTab] = useState(savedTab) // 'page1' | 'page2' | 'settings'
+  const [tab, setTab] = useState(savedTab)
   const [loading, setLoading] = useState(false)
   const [guide, setGuide] = useState(false)
   const [slugStatus, setSlugStatus] = useState('')
@@ -249,9 +251,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
   const handleSave = async () => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(form)) } catch(e) {}
-    // DB에도 임시 저장
     if (form.draftId) {
-      // 기존 임시저장 업데이트
       await supabase.from('fundings').update({
         title: form.title || '(제목 없음)',
         gift_name: form.gift_name || '',
@@ -263,7 +263,6 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         is_draft: true,
       }).eq('id', form.draftId)
     } else {
-      // 새 임시저장 생성 (slug 없이)
       const tempSlug = 'draft_' + user.id.slice(0,8) + '_' + Date.now()
       const { data, error } = await supabase.from('fundings').insert({
         user_id: user.id,
@@ -296,13 +295,11 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     setSlugStatus(data ? 'error' : 'ok')
   }
 
-  // 수정 모드(기존 완성 펀딩)면 slug 중복확인 불필요, 새로 만들 때만 필요
   const isEditMode = !!(form.editId && !form.draftId)
   const slugOk = isEditMode || slugStatus === 'ok'
   const ready = form.title && form.gift_name && form.goal_amount && form.kakao_link && form.slug && slugOk
 
   async function submit() {
-    // 어떤 항목이 빠졌는지 알려주기
     if (!form.title) { showToast('대제목을 입력해 주세요'); return }
     if (!form.gift_name) { showToast('선물 이름을 입력해 주세요'); return }
     if (!form.goal_amount) { showToast('목표 금액을 입력해 주세요'); return }
@@ -326,11 +323,9 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     }
     let error
     if (form.draftId || form.editId) {
-      // 기존 펀딩 업데이트
       const { error: e } = await supabase.from('fundings').update(payload).eq('id', form.draftId || form.editId)
       error = e
     } else {
-      // 새 펀딩 생성
       const { error: e } = await supabase.from('fundings').insert({ user_id: user.id, ...payload })
       error = e
     }
@@ -349,9 +344,9 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
   return (
     <div style={{...wrap, background:'#fff'}}>
-      {/* 상단 탭 */}
+      {/* 상단 탭 — 홈 버튼 왼쪽, 로그아웃 오른쪽 */}
       <div style={{background:color, padding:'20px 20px 0', paddingTop:'calc(20px + env(safe-area-inset-top))'}}>
-        <div style={{display:'flex', justifyContent:'flex-end', alignItems:'center', gap:8, marginBottom:8}}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, marginBottom:8}}>
           <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>🏠 홈</button>
           <button onClick={async () => { await supabase.auth.signOut(); try { localStorage.removeItem(PAGE_KEY) } catch(e) {} window.location.href = '/' }} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
         </div>
@@ -441,7 +436,6 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
           </div>
 
           <div style={{padding:'24px 20px 0'}}>
-            {/* 후원의 효과 */}
             <div style={{marginBottom:28, textAlign:'center'}}>
               <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:16}}>후원의 효과</div>
               {editingBenefits ? (
@@ -475,7 +469,6 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
               )}
             </div>
 
-            {/* 금액 입력 미리보기 */}
             <div style={{marginBottom:24, textAlign:'center'}}>
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
               <div style={{width:'100%', border:'2px solid #e8e8e8', borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#bbb', textAlign:'center', boxSizing:'border-box'}}>금액을 입력해 주세요</div>
@@ -579,7 +572,6 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
       </div>
       <div style={{padding:'24px 20px 40px'}}>
 
-        {/* 작성 중 */}
         {drafts.length > 0 && (
           <div style={{marginBottom:28}}>
             <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✏️ 작성 중</div>
@@ -602,7 +594,6 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
           </div>
         )}
 
-        {/* 완성 */}
         {done.length > 0 && (
           <div style={{marginBottom:28}}>
             <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✅ 완성</div>
@@ -618,7 +609,6 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     </div>
                     <button onClick={() => del(f.id)} style={{background:'#f5f5f5', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, color:'#aaa', cursor:'pointer', fontWeight:500}}>삭제</button>
                   </div>
-                  {/* 링크 눌러서 복사 */}
                   <div onClick={() => copyLink(f.slug)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:12, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
                     <div style={{fontSize:14, color:fc, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
                     <div style={{fontSize:16, flexShrink:0}}>📋</div>
@@ -659,7 +649,6 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
   const pct = funding.goal_amount ? Math.round((raised/funding.goal_amount)*100) : 0
   const dd = dday(funding.birthday)
   const msgs = donations.filter(d => d.message && d.message.trim())
-  const avg = donations.length > 0 ? Math.round(raised/donations.length) : 0
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
@@ -689,15 +678,15 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
             <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:16, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
             {dd && <div style={{background:'#fff', color:'#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:600, border:'1px solid #e8e8e8'}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
           </div>
-          <div style={{display:'flex', alignItems:'flex-end', gap:8, marginBottom:12}}>
-            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
-            <div style={{fontSize:16, fontWeight:600, color:'#888', marginBottom:4}}>달성</div>
+          <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:12}}>
+            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}<span style={{fontSize:16, fontWeight:600, color:'#888', marginLeft:6}}>달성</span></div>
+            <div style={{fontSize:13, color:'#aaa', marginBottom:4}}>목표 <span style={{fontWeight:700, color:'#555'}}>{won(funding.goal_amount)}</span></div>
           </div>
           <div style={{height:5, background:'#e8e8e8', borderRadius:99, marginBottom:10}}>
             <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.6s ease'}} />
           </div>
           <div style={{display:'flex', justifyContent:'space-between'}}>
-            <div style={{fontSize:12, color:'#aaa'}}>목표 {won(funding.goal_amount)} · {pct}% 달성</div>
+            <div style={{fontSize:12, color:'#aaa'}}>{pct}% 달성</div>
             <div style={{fontSize:12, color:'#aaa'}}>남은 금액 <span style={{fontWeight:700, color:'#555'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
           </div>
         </div>
