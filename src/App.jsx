@@ -651,7 +651,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap, paddingBottom:100}}>
-      <div style={{background:color, padding:'20px 20px 20px', paddingTop:'calc(20px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 6px 16px rgba(0,0,0,0.2)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
+      <div style={{background:color, padding:'10px 20px 10px', paddingTop:'calc(10px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 2px 6px rgba(0,0,0,0.12)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
           <div style={{display:'flex', gap:8, flexShrink:0, marginLeft:12}}>
@@ -662,9 +662,9 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       {funding.image ? (
-        <img src={funding.image} style={{width:'100%', aspectRatio:'1/1', objectFit:'cover', display:'block'}} />
+        <img src={funding.image} style={{width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block'}} />
       ) : (
-        <div style={{width:'100%', aspectRatio:'1/1', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
+        <div style={{width:'100%', aspectRatio:'4/3', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <span style={{fontSize:48}}>🎁</span>
         </div>
       )}
@@ -678,7 +678,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
             {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#fff', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : '1px solid #e8e8e8'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
           <div style={{display:'flex', alignItems:'flex-end', gap:8, marginBottom:4}}>
-            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
+            <div style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
             <div style={{fontSize:16, fontWeight:600, color:'#888', marginBottom:4}}>달성</div>
           </div>
           <div style={{textAlign:'center', fontSize:13, fontWeight:700, color:color, marginBottom:12}}>목표 {won(funding.goal_amount)}</div>
