@@ -95,7 +95,7 @@ export default function App() {
   }
 
   if (page === 'loading') return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
-  if (page === 'home') return <HomePage onStart={() => goPage('auth')} />
+  if (page === 'home') return <HomePage onStart={() => goPage('auth')} onPrivacy={() => goPage('privacy')} />
   if (page === 'auth') return <AuthPage onLogin={googleLogin} onBack={() => goPage('home')} />
   if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {} goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
   if (page === 'create') return <CreatePage user={user} editFunding={editFunding} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} onSaveDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
@@ -106,7 +106,7 @@ export default function App() {
   return null
 }
 
-function HomePage({ onStart }) {
+function HomePage({ onStart, onPrivacy }) {
   return (
     <div style={wrap}>
       <div style={{background:'#69B7FF', padding:'52px 24px 28px', color:'#fff'}}>
@@ -134,7 +134,7 @@ function HomePage({ onStart }) {
         })}
         <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
         <div style={{textAlign:'center', marginTop:16}}>
-          <button onClick={() => window.location.href='/privacy'} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>개인정보처리방침</button>
+          <button onClick={onPrivacy} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>개인정보처리방침</button>
         </div>
       </div>
     </div>
