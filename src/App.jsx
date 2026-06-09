@@ -388,8 +388,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
             </label>
           )}
 
-          <div style={{padding:'20px 20px 0', position:'relative'}}>
-        <div style={{position:'absolute', top:0, left:0, right:0, height:15, background:'linear-gradient(to bottom, rgba(255,255,255,0.9), transparent)', pointerEvents:'none', zIndex:1}} />
+          <div style={{padding:'20px 20px 0'}}>
             <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>
               <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:18, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
             </div>
@@ -675,9 +674,9 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       {funding.image ? (
-        <img src={funding.image} style={{width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block'}} />
+        <img src={funding.image} style={{width:'100%', aspectRatio:'1/1', objectFit:'cover', display:'block'}} />
       ) : (
-        <div style={{width:'100%', aspectRatio:'4/3', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
+        <div style={{width:'100%', aspectRatio:'1/1', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <span style={{fontSize:48}}>🎁</span>
         </div>
       )}
