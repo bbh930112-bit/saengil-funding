@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
 
 const COLORS = [
-  { name: '오렌지', main: '#FF9F5A' },
-  { name: '옐로우', main: '#FFD95A' },
-  { name: '블루', main: '#69B7FF' },
-  { name: '스카이', main: '#8EDBFF' },
-  { name: '그린', main: '#72D572' },
-  { name: '브라운', main: '#C58A5C' },
-  { name: '핑크', main: '#fb8cac' },
-  { name: '퍼플', main: '#B58CFF' },
+  { name: '오렌지', main: '#E8722A' },
+  { name: '옐로우', main: '#E6B800' },
+  { name: '블루', main: '#0064FF' },
+  { name: '스카이', main: '#3AAFE0' },
+  { name: '그린', main: '#3FAD3F' },
+  { name: '브라운', main: '#A0673A' },
+  { name: '핑크', main: '#E8527A' },
+  { name: '퍼플', main: '#7C4FCC' },
 ]
 
 const SAMPLES = [
-  { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#69B7FF' },
+  { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#0064FF' },
   { title: '👗 입을 옷이 없어 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
 ]
 
@@ -109,7 +109,7 @@ export default function App() {
 function HomePage({ onStart, onPrivacy }) {
   return (
     <div style={wrap}>
-      <div style={{background:'#69B7FF', padding:'52px 24px 28px', color:'#fff'}}>
+      <div style={{background:'#0064FF', padding:'52px 24px 28px', color:'#fff'}}>
         <div style={{fontSize:13, fontWeight:500, opacity:0.85, marginBottom:6}}>🎂 생일펀딩</div>
         <div style={{fontSize:26, fontWeight:700, marginBottom:4}}>생일 선물,<br/>큰 거 하나 받고 싶다</div>
         <div style={{fontSize:13, opacity:0.8}}>자잘한 선물은 이제 그만 능동적으로 비싼 선물을 얻어내자</div>
@@ -132,7 +132,7 @@ function HomePage({ onStart, onPrivacy }) {
             </div>
           )
         })}
-        <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
+        <button style={{display:'block', width:'100%', background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
         <div style={{textAlign:'center', marginTop:16}}>
           <button onClick={onPrivacy} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>개인정보처리방침</button>
         </div>
@@ -566,7 +566,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
 
   return (
     <div style={wrap}>
-      <div style={{background:'#69B7FF', padding:'52px 24px 24px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+      <div style={{background:'#0064FF', padding:'52px 24px 24px', color:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
         <div style={{fontSize:18, fontWeight:700}}>{name}의 펀딩</div>
         <button onClick={logout} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', fontSize:13, fontWeight:600, cursor:'pointer'}}>로그아웃</button>
       </div>
@@ -576,7 +576,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
           <div style={{marginBottom:28}}>
             <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✏️ 작성 중</div>
             {drafts.map(f => {
-              const fc = f.color || '#69B7FF'
+              const fc = f.color || '#0064FF'
               return (
                 <div key={f.id} style={{background:'#fff', border:'2px dashed #e0e0e0', borderRadius:16, padding:20, marginBottom:12}}>
                   <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
@@ -598,7 +598,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
           <div style={{marginBottom:28}}>
             <div style={{fontSize:13, fontWeight:700, color:'#888', marginBottom:12}}>✅ 완성</div>
             {done.map(f => {
-              const fc = f.color || '#69B7FF'
+              const fc = f.color || '#0064FF'
               const link = 'https://saengilfunding.com' + '/' + f.slug
               return (
                 <div key={f.id} style={{background:'#fff', border:'1px solid #f0f0f0', borderRadius:16, padding:20, marginBottom:12}}>
@@ -632,7 +632,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
           </div>
         )}
 
-        <button style={{display:'block', width:'100%', background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:8}} onClick={onNew}>+ 새 펀딩 만들기</button>
+        <button style={{display:'block', width:'100%', background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:8}} onClick={onNew}>+ 새 펀딩 만들기</button>
       </div>
       {toast && <div style={{position:'fixed', bottom:32, left:'50%', transform:'translateX(-50%)', background:'#222', color:'#fff', borderRadius:10, padding:'12px 20px', fontSize:14, fontWeight:500, zIndex:9999, whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
@@ -644,7 +644,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
   useEffect(() => { onReload && onReload() }, [])
   if (!funding) return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
 
-  const color = funding.color || '#69B7FF'
+  const color = funding.color || '#0064FF'
   const raised = donations.reduce((a, d) => a + (Number(d.amount)||0), 0)
   const pct = funding.goal_amount ? Math.round((raised/funding.goal_amount)*100) : 0
   const dd = dday(funding.birthday)
@@ -717,7 +717,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   const [message, setMessage] = useState('')
   const [step, setStep] = useState('input')
   const [loading, setLoading] = useState(false)
-  const color = funding?.color || '#69B7FF'
+  const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
 
   function goKakao() {
@@ -785,7 +785,7 @@ function DonePage({ onBack }) {
     <div style={{...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:32}}>
       <div style={{fontSize:56, marginBottom:16}}>🎉</div>
       <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:32, textAlign:'center'}}>후원 완료!</div>
-      <button style={{background:'#69B7FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>후원 현황 확인</button>
+      <button style={{background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>후원 현황 확인</button>
     </div>
   )
 }
@@ -793,7 +793,7 @@ function DonePage({ onBack }) {
 function PrivacyPage({ onBack }) {
   return (
     <div style={wrap}>
-      <div style={{background:'#69B7FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+      <div style={{background:'#0064FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
         <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:14, cursor:'pointer'}}>←</button>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>개인정보처리방침</div>
       </div>
