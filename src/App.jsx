@@ -356,7 +356,9 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(shareText())
-    showToast('복사됐어요!')
+    setShowSharePopup(false)
+    onDone()
+    setTimeout(() => showToast('링크가 복사됐어요! 친구들에게 공유해봐요 🎂'), 300)
   }
 
   return (
@@ -829,8 +831,10 @@ function DonePage({ onBack }) {
   return (
     <div style={{...wrap, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:32}}>
       <div style={{fontSize:56, marginBottom:16}}>🎉</div>
-      <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:32, textAlign:'center'}}>후원 완료!</div>
-      <button style={{background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'14px 32px', fontSize:15, fontWeight:700, cursor:'pointer'}} onClick={onBack}>후원 현황 확인</button>
+      <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:8, textAlign:'center'}}>후원 완료!</div>
+      <div style={{fontSize:14, color:'#888', marginBottom:32, textAlign:'center'}}>소중한 후원 감사해요 🎂</div>
+      <button style={{display:'block', width:'100%', maxWidth:300, background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'15px 0', fontSize:15, fontWeight:700, cursor:'pointer', marginBottom:12}} onClick={onBack}>후원 현황 확인</button>
+      <button style={{display:'block', width:'100%', maxWidth:300, background:'#f0f0f0', color:'#555', border:'none', borderRadius:14, padding:'15px 0', fontSize:15, fontWeight:600, cursor:'pointer'}} onClick={() => window.location.href = 'https://saengilfunding.com'}>나도 생일펀딩 만들기 🎂</button>
     </div>
   )
 }
