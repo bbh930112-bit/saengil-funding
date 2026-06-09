@@ -619,10 +619,11 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     <button onClick={() => del(f.id)} style={{background:'#f5f5f5', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, color:'#aaa', cursor:'pointer', fontWeight:500}}>삭제</button>
                   </div>
                   {/* 링크 눌러서 복사 */}
-                  <div onClick={() => copyLink(f.slug)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:16, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
+                  <div onClick={() => copyLink(f.slug)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:12, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
                     <div style={{fontSize:14, color:fc, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
                     <div style={{fontSize:16, flexShrink:0}}>📋</div>
                   </div>
+                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} />
                   <div style={{display:'flex', gap:8}}>
                     {btn('펀딩 현황', () => onView(f), fc, '#fff')}
                     {btn('수정', () => onEdit(f))}
@@ -832,6 +833,30 @@ function PrivacyPage({ onBack }) {
         <div style={{marginBottom:16}}>개인정보 관련 문의는 saengilfunding.com 을 통해 연락 주세요.</div>
 
         <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
+      </div>
+    </div>
+  )
+}
+
+function FundingProgress({ fundingId, goalAmount, color }) {
+  const [raised, setRaised] = useState(0)
+
+  useEffect(() => {
+    supabase.from('donations').select('amount').eq('funding_id', fundingId).then(({ data }) => {
+      if (data) setRaised(data.reduce((a, d) => a + (Number(d.amount) || 0), 0))
+    })
+  }, [fundingId])
+
+  const pct = goalAmount ? Math.round((raised / goalAmount) * 100) : 0
+
+  return (
+    <div style={{marginBottom:14}}>
+      <div style={{display:'flex', justifyContent:'space-between', marginBottom:5}}>
+        <div style={{fontSize:12, color:'#aaa'}}>달성률</div>
+        <div style={{fontSize:12, fontWeight:700, color:pct >= 100 ? color : '#888'}}>{pct}%{pct >= 100 ? ' 🎉' : ''}</div>
+      </div>
+      <div style={{height:5, background:'#f0f0f0', borderRadius:99}}>
+        <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.5s'}} />
       </div>
     </div>
   )
