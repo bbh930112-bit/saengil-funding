@@ -235,6 +235,8 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
   const [slugStatus, setSlugStatus] = useState('')
   const [editingBenefits, setEditingBenefits] = useState(false)
   const [benefitDraft, setBenefitDraft] = useState('')
+  const [showSharePopup, setShowSharePopup] = useState(false)
+  const [completedSlug, setCompletedSlug] = useState('')
 
   const set = (k, v) => setForm(f => {
     const next = {...f, [k]:v}
@@ -331,9 +333,14 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     }
     setLoading(false)
     if (error) { showToast('저장 실패: ' + (error.message || error.code || JSON.stringify(error))); setLoading(false); return }
-    showToast(form.isEdit ? '수정됐어요!' : '펀딩 페이지가 만들어졌어요!')
     try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {}
-    onDone()
+    if (form.isEdit) {
+      showToast('수정됐어요!')
+      onDone()
+    } else {
+      setCompletedSlug(form.slug.toLowerCase())
+      setShowSharePopup(true)
+    }
   }
 
   const tabBtn = (t, label) => (
@@ -342,8 +349,36 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     </button>
   )
 
+  const shareText = () => {
+    const link = 'https://saengilfunding.com/' + completedSlug
+    return `🎂 ${form.title}\n현재 0% (0명 참여)\n\n${link}`
+  }
+
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(shareText())
+    showToast('복사됐어요!')
+  }
+
   return (
     <div style={{...wrap, background:'#fff'}}>
+      {/* 공유 팝업 */}
+      {showSharePopup && (
+        <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 24px'}}>
+          <div style={{background:'#fff', borderRadius:20, padding:'28px 24px', width:'100%', maxWidth:380}}>
+            <div style={{fontSize:22, textAlign:'center', marginBottom:6}}>🎉</div>
+            <div style={{fontSize:18, fontWeight:700, color:'#111', textAlign:'center', marginBottom:20}}>펀딩이 만들어졌어요!</div>
+            <div style={{background:'#f8f8f8', borderRadius:12, padding:'14px 16px', marginBottom:20, fontSize:14, color:'#333', lineHeight:1.8, whiteSpace:'pre-line'}}>
+              {shareText()}
+            </div>
+            <button onClick={handleShare} style={{display:'block', width:'100%', background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'15px 0', fontSize:15, fontWeight:700, cursor:'pointer', marginBottom:10}}>
+              친구들에게 공유하기 📋
+            </button>
+            <button onClick={() => { setShowSharePopup(false); onDone() }} style={{display:'block', width:'100%', background:'#f0f0f0', color:'#888', border:'none', borderRadius:14, padding:'15px 0', fontSize:15, fontWeight:600, cursor:'pointer'}}>
+              나중에
+            </button>
+          </div>
+        </div>
+      )}
       {/* 상단 탭 — 홈 버튼 왼쪽, 로그아웃 오른쪽 */}
       <div style={{background:color, padding:'20px 20px 0', paddingTop:'calc(20px + env(safe-area-inset-top))'}}>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, marginBottom:8}}>
@@ -544,8 +579,12 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
     await supabase.from('donations').delete().eq('funding_id', id)
     onReload(); showToast('초기화됐어요')
   }
-  async function copyLink(slug) {
-    await navigator.clipboard.writeText('https://saengilfunding.com' + '/' + slug)
+  async function copyLink(f, raised, pct) {
+    const link = 'https://saengilfunding.com/' + f.slug
+    const dd = dday(f.birthday)
+    const ddText = dd ? '\n' + dd.label : ''
+    const text = `🎂 ${f.title}\n현재 ${pct}% (${raised}명 참여)${ddText}\n\n${link}`
+    await navigator.clipboard.writeText(text)
     showToast('링크가 복사됐어요!')
   }
   const name = user?.user_metadata?.name || user?.user_metadata?.full_name || '내'
@@ -608,11 +647,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     </div>
                     <button onClick={() => del(f.id)} style={{background:'#f5f5f5', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, color:'#aaa', cursor:'pointer', fontWeight:500}}>삭제</button>
                   </div>
-                  <div onClick={() => copyLink(f.slug)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:12, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
-                    <div style={{fontSize:14, color:fc, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
-                    <div style={{fontSize:16, flexShrink:0}}>📋</div>
-                  </div>
-                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} />
+                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} onCopy={(raised, pct, count) => copyLink(f, count, pct)} link={link} />
                   <div style={{display:'flex', gap:8}}>
                     {btn('펀딩 현황', () => onView(f), fc, '#fff')}
                     {btn('수정', () => onEdit(f))}
@@ -837,12 +872,16 @@ function PrivacyPage({ onBack }) {
   )
 }
 
-function FundingProgress({ fundingId, goalAmount, color }) {
+function FundingProgress({ fundingId, goalAmount, color, onCopy, link }) {
   const [raised, setRaised] = useState(0)
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     supabase.from('donations').select('amount').eq('funding_id', fundingId).then(({ data }) => {
-      if (data) setRaised(data.reduce((a, d) => a + (Number(d.amount) || 0), 0))
+      if (data) {
+        setRaised(data.reduce((a, d) => a + (Number(d.amount) || 0), 0))
+        setCount(data.length)
+      }
     })
   }, [fundingId])
 
@@ -850,6 +889,12 @@ function FundingProgress({ fundingId, goalAmount, color }) {
 
   return (
     <div style={{marginBottom:14}}>
+      {link && onCopy && (
+        <div onClick={() => onCopy(raised, pct, count)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:12, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
+          <div style={{fontSize:14, color:color, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
+          <div style={{fontSize:16, flexShrink:0}}>📋</div>
+        </div>
+      )}
       <div style={{display:'flex', justifyContent:'space-between', marginBottom:5}}>
         <div style={{fontSize:12, color:'#aaa'}}>달성률</div>
         <div style={{fontSize:12, fontWeight:700, color:pct >= 100 ? color : '#888'}}>{pct}%{pct >= 100 ? ' 🎉' : ''}</div>
