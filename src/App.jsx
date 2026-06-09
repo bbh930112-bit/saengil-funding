@@ -678,13 +678,13 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       )}
 
       <div style={{padding:'20px 24px 0'}}>
-        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:16, marginTop:8}}>{funding.gift_name} 🎁</div>
+        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:12, marginTop:8}}>{funding.gift_name} 🎁</div>
 
         <div style={{marginBottom:24}}>
-          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
+          <div style={{borderTop:'1px solid #f0f0f0', paddingTop:14, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
             <div>
-              <span style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</span>
-              <span style={{fontSize:15, fontWeight:600, color:'#888', marginLeft:6}}>달성</span>
+              <span style={{fontSize:24, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</span>
+              <span style={{fontSize:14, fontWeight:600, color:'#888', marginLeft:6}}>달성</span>
             </div>
             {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#f5f5f5', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'4px 12px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : 'none', flexShrink:0}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
