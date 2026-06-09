@@ -672,22 +672,26 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       <div style={{padding:'20px 24px 0'}}>
         <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:10, marginTop:8, paddingLeft:10}}>{funding.gift_name} 🎁</div>
 
-        <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
+        <div style={{marginBottom:24}}>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
-            <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:16, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
-            {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#fff', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : '1px solid #e8e8e8'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
+            <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:15, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
+            {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#f5f5f5', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : 'none'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
-          <div style={{display:'flex', alignItems:'flex-end', gap:8, marginBottom:4}}>
-            <div style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
-            <div style={{fontSize:16, fontWeight:600, color:'#888', marginBottom:4}}>달성</div>
+
+          <div style={{marginBottom:16}}>
+            <span style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</span>
+            <span style={{fontSize:15, fontWeight:600, color:'#888', marginLeft:6}}>달성</span>
           </div>
-          <div style={{textAlign:'center', fontSize:13, fontWeight:700, color:color, marginBottom:12}}>목표 {won(funding.goal_amount)}</div>
-          <div style={{height:5, background:'#e8e8e8', borderRadius:99, marginBottom:10}}>
-            <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.6s ease'}} />
-          </div>
-          <div style={{display:'flex', justifyContent:'space-between'}}>
-            <div style={{fontSize:12, color:'#aaa'}}>{pct}% 달성</div>
-            <div style={{fontSize:12, color:'#aaa'}}>남은 금액 <span style={{fontWeight:700, color:'#555'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
+
+          <div style={{border:'1px solid #ebebeb', borderRadius:14, padding:'16px 20px'}}>
+            <div style={{fontSize:13, fontWeight:700, color:color, marginBottom:14}}>목표 {won(funding.goal_amount)}</div>
+            <div style={{height:5, background:'#ebebeb', borderRadius:99, marginBottom:10}}>
+              <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.6s ease'}} />
+            </div>
+            <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{fontSize:12, color:'#bbb'}}>{pct}% 달성</div>
+              <div style={{fontSize:12, color:'#bbb'}}>남은 금액 <span style={{fontWeight:700, color:'#888'}}>{won(Math.max(0,(funding.goal_amount||0)-raised))}</span></div>
+            </div>
           </div>
         </div>
 
