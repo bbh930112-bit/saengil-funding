@@ -650,7 +650,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
   const msgs = donations.filter(d => d.message && d.message.trim())
 
   return (
-    <div style={{...wrap, paddingBottom:100}}>
+    <div style={{...wrap}}>
       <div style={{background:color, padding:'10px 20px 10px', paddingTop:'calc(10px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 2px 6px rgba(0,0,0,0.12)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
@@ -662,25 +662,31 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       {funding.image ? (
-        <img src={funding.image} style={{width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block'}} />
+        <div style={{position:'relative'}}>
+          <img src={funding.image} style={{width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block'}} />
+          <div style={{position:'absolute', bottom:12, left:12, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600, color:'#fff'}}>
+            <span style={{fontWeight:800}}>{donations.length}</span>명 참여
+          </div>
+        </div>
       ) : (
-        <div style={{width:'100%', aspectRatio:'4/3', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
+        <div style={{position:'relative', width:'100%', aspectRatio:'4/3', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <span style={{fontSize:48}}>🎁</span>
+          <div style={{position:'absolute', bottom:12, left:12, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600, color:'#fff'}}>
+            <span style={{fontWeight:800}}>{donations.length}</span>명 참여
+          </div>
         </div>
       )}
 
       <div style={{padding:'20px 24px 0'}}>
-        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:10, marginTop:8, paddingLeft:10}}>{funding.gift_name} 🎁</div>
+        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:16, marginTop:8}}>{funding.gift_name} 🎁</div>
 
         <div style={{marginBottom:24}}>
-          <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
-            <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:15, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
-            {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#f5f5f5', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : 'none'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
-          </div>
-
-          <div style={{marginBottom:16}}>
-            <span style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</span>
-            <span style={{fontSize:15, fontWeight:600, color:'#888', marginLeft:6}}>달성</span>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
+            <div>
+              <span style={{fontSize:28, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</span>
+              <span style={{fontSize:15, fontWeight:600, color:'#888', marginLeft:6}}>달성</span>
+            </div>
+            {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#f5f5f5', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'4px 12px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : 'none', flexShrink:0}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
 
           <div style={{border:'1px solid #ebebeb', borderRadius:14, padding:'16px 20px'}}>
@@ -707,7 +713,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
         )}
       </div>
 
-      <div style={{position:'fixed', bottom:0, left:'50%', transform:'translateX(-50%)', width:'100%', maxWidth:430, padding:'12px 20px 24px', background:'#fff', borderTop:'1px solid #f0f0f0', zIndex:100}}>
+      <div style={{padding:'0 24px 40px'}}>
         <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(0,0,0,0.18)'}} onClick={onDonate}>후원하기 🎉</button>
       </div>
 
