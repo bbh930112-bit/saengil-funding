@@ -388,7 +388,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
             </label>
           )}
 
-          <div style={{padding:'20px 20px 0'}}>
+          <div style={{padding:'20px 24px 0'}}>
             <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>
               <EditableText value={form.gift_name} onChange={v => set('gift_name', v)} placeholder="선물 이름 🎁" style={{fontSize:18, fontWeight:700, color:'#111'}} isPlaceholder={!form.gift_name} />
             </div>
@@ -681,8 +681,8 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
         </div>
       )}
 
-      <div style={{padding:'20px 20px 0'}}>
-        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:16, paddingLeft:10}}>{funding.gift_name}</div>
+      <div style={{padding:'20px 24px 0'}}>
+        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:10, marginTop:-4, paddingLeft:10}}>{funding.gift_name}</div>
 
         <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
