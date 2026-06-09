@@ -664,15 +664,15 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       {funding.image ? (
         <div style={{position:'relative'}}>
           <img src={funding.image} style={{width:'100%', aspectRatio:'4/3', objectFit:'cover', display:'block'}} />
-          <div style={{position:'absolute', bottom:12, right:12, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'4px 10px', fontSize:11, fontWeight:400, color:'#fff'}}>
-            <span style={{fontWeight:700}}>{donations.length}</span>명 참여
+          <div style={{position:'absolute', bottom:12, right:24, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'7px 10px', fontSize:11, fontWeight:400, color:'#fff'}}>
+            {donations.length}명 참여
           </div>
         </div>
       ) : (
         <div style={{position:'relative', width:'100%', aspectRatio:'4/3', background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center'}}>
           <span style={{fontSize:48}}>🎁</span>
-          <div style={{position:'absolute', bottom:12, right:12, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'4px 10px', fontSize:11, fontWeight:400, color:'#fff'}}>
-            <span style={{fontWeight:700}}>{donations.length}</span>명 참여
+          <div style={{position:'absolute', bottom:12, right:24, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', borderRadius:20, padding:'7px 10px', fontSize:11, fontWeight:400, color:'#fff'}}>
+            {donations.length}명 참여
           </div>
         </div>
       )}
