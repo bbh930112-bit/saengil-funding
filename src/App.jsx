@@ -682,7 +682,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       )}
 
       <div style={{padding:'20px 20px 0'}}>
-        <div style={{fontSize:24, fontWeight:800, color:color, marginBottom:16}}>{funding.gift_name}</div>
+        <div style={{fontSize:24, fontWeight:800, color:'#111', marginBottom:16}}>{funding.gift_name}</div>
 
         <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
