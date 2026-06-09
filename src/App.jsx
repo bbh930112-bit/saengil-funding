@@ -830,7 +830,7 @@ function PrivacyPage({ onBack }) {
         <div style={{marginBottom:16}}>이용자는 언제든지 개인정보 열람, 수정, 삭제를 요청할 수 있습니다.</div>
 
         <div style={{fontWeight:700, color:'#111', marginBottom:6}}>7. 문의</div>
-        <div style={{marginBottom:16}}>개인정보 관련 문의는 saengilfunding.com 을 통해 연락 주세요.</div>
+        <div style={{marginBottom:16}}>개인정보 관련 문의는 saeng1fd@gmail.com 으로 연락 주세요.</div>
 
         <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
       </div>
