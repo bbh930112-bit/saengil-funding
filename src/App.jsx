@@ -31,9 +31,9 @@ function dday(dateStr) {
   const today = new Date(); today.setHours(0,0,0,0)
   const target = new Date(dateStr); target.setHours(0,0,0,0)
   const diff = Math.ceil((target - today) / 86400000)
-  if (diff === 0) return 'D-Day'
-  if (diff > 0) return 'D-' + diff
-  return 'D+' + Math.abs(diff)
+  const label = diff === 0 ? 'D-Day' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff)
+  const urgent = diff >= 0 && diff <= 7
+  return { label, urgent }
 }
 
 const wrap = { minHeight:'100vh', background:'#fff', fontFamily:"'Pretendard',sans-serif", maxWidth:430, margin:'0 auto', overflowX:'hidden' }
@@ -127,7 +127,7 @@ function HomePage({ onStart, onPrivacy }) {
               </div>
               <div style={{display:'flex', justifyContent:'space-between', marginTop:10}}>
                 <div style={{fontSize:12, color:f.color, fontWeight:600}}>{won(f.raised)} 모였어요 ({pct}%)</div>
-                <div style={{fontSize:12, color:'#888'}}>D-{f.dday}</div>
+                <div style={{fontSize:12, color: f.dday <= 7 ? '#E03030' : '#888', fontWeight: f.dday <= 7 ? 700 : 400}}>D-{f.dday}</div>
               </div>
             </div>
           )
@@ -391,7 +391,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
             <div style={{marginBottom:4}}>
               <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:10}}>
                 <div style={{fontSize:25, fontWeight:700, color:color}}>0<span style={{fontSize:16, fontWeight:600, color:'#111'}}>명 참여</span></div>
-                {form.birthday && <div style={{background:'#f0f0f0', color:'#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{dday(form.birthday)||'D-?'}</div>}
+                {form.birthday && (() => { const d = dday(form.birthday); return d ? <div style={{background: d.urgent ? '#FFF0F0' : '#f0f0f0', color: d.urgent ? '#E03030' : '#555', borderRadius:20, padding:'4px 12px', fontSize:13, fontWeight:600}}>{d.label}</div> : null })()}
               </div>
               <div style={{display:'flex', alignItems:'flex-end', gap:10, marginBottom:10}}>
                 <div style={{fontSize:32, fontWeight:700, color:'#111'}}>0원<span style={{fontSize:18, fontWeight:600}}> 달성</span></div>
@@ -676,7 +676,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
         <div style={{background:'#f8f8f8', borderRadius:16, padding:20, marginBottom:20}}>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
             <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:16, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
-            {dd && <div style={{background:'#fff', color:'#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:600, border:'1px solid #e8e8e8'}}>{dd === 'D-Day' ? '오늘 마감' : dd}</div>}
+            {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#fff', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : '1px solid #e8e8e8'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
           <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:12}}>
             <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}<span style={{fontSize:16, fontWeight:600, color:'#888', marginLeft:6}}>달성</span></div>
