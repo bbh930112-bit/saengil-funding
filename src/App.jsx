@@ -431,7 +431,6 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       {tab === 'page2' && (
         <div style={{paddingBottom:100}}>
           <div style={{background:color, padding:'20px 20px 24px', color:'#fff'}}>
-            <div style={{fontSize:11, color:'rgba(255,255,255,0.75)', marginBottom:6}}>✏️ 후원하기 페이지 미리보기</div>
             <div style={{fontSize:18, fontWeight:700, color:'#fff'}}>후원하기</div>
           </div>
 
@@ -678,10 +677,11 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
             <div style={{fontSize:13, color:'#888', fontWeight:500}}><span style={{fontSize:16, fontWeight:700, color:color}}>{donations.length}</span>명 참여</div>
             {dd && <div style={{background: dd.urgent ? '#FFF0F0' : '#fff', color: dd.urgent ? '#E03030' : '#555', borderRadius:20, padding:'3px 10px', fontSize:12, fontWeight:700, border: dd.urgent ? '1px solid #FFCCCC' : '1px solid #e8e8e8'}}>{dd.urgent && '🔥 '}{dd.label === 'D-Day' ? '오늘 마감' : dd.label}</div>}
           </div>
-          <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:12}}>
-            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}<span style={{fontSize:16, fontWeight:600, color:'#888', marginLeft:6}}>달성</span></div>
-            <div style={{fontSize:13, color:'#aaa', marginBottom:4}}>목표 <span style={{fontWeight:700, color:'#555'}}>{won(funding.goal_amount)}</span></div>
+          <div style={{display:'flex', alignItems:'flex-end', gap:8, marginBottom:4}}>
+            <div style={{fontSize:36, fontWeight:800, color:'#111', letterSpacing:'-1px'}}>{won(raised)}</div>
+            <div style={{fontSize:16, fontWeight:600, color:'#888', marginBottom:4}}>달성</div>
           </div>
+          <div style={{textAlign:'center', fontSize:13, fontWeight:700, color:color, marginBottom:12}}>목표 {won(funding.goal_amount)}</div>
           <div style={{height:5, background:'#e8e8e8', borderRadius:99, marginBottom:10}}>
             <div style={{height:5, background:color, borderRadius:99, width:Math.min(pct,100)+'%', transition:'width 0.6s ease'}} />
           </div>
