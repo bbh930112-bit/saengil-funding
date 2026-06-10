@@ -763,20 +763,39 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   const [amount, setAmount] = useState(() => sessionStorage.getItem('donate_amount') || '')
   const [message, setMessage] = useState('')
   const [step, setStep] = useState(() => sessionStorage.getItem('donate_step') || 'input')
+  const [kakaoClicked, setKakaoClicked] = useState(() => sessionStorage.getItem('donate_kakao_clicked') === 'true')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
 
+  // 외부 페이지 갔다 돌아왔는지 감지
+  useEffect(() => {
+    const onFocus = () => {
+      if (sessionStorage.getItem('donate_kakao_clicked') === 'true') {
+        setKakaoClicked(true)
+      }
+    }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && sessionStorage.getItem('donate_kakao_clicked') === 'true') {
+        setKakaoClicked(true)
+      }
+    })
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
+
   function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
-    sessionStorage.setItem('donate_step', 'confirm')
-    sessionStorage.setItem('donate_amount', amount)
-    const isKakao = /KAKAOTALK/i.test(navigator.userAgent)
-    if (isKakao) {
-      window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(funding.kakao_link)
-    } else {
-      window.location.href = funding.kakao_link
+    if (kakaoClicked) {
+      if (window.confirm('이미 송금하셨나요? 다시 송금할까요?')) {
+        sessionStorage.setItem('donate_amount', amount)
+        window.location.href = funding.kakao_link
+      }
+      return
     }
+    sessionStorage.setItem('donate_amount', amount)
+    sessionStorage.setItem('donate_kakao_clicked', 'true')
+    window.location.href = funding.kakao_link
   }
 
   async function done() {
@@ -785,6 +804,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
     setLoading(false)
     sessionStorage.removeItem('donate_step')
     sessionStorage.removeItem('donate_amount')
+    sessionStorage.removeItem('donate_kakao_clicked')
     onDone()
   }
 
@@ -813,7 +833,12 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
               <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
               <input style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" pattern="[0-9]*" />
             </div>
-            <button style={{display:'block', width:'100%', background:amount?color:'#e0e0e0', color:amount?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount?'pointer':'not-allowed'}} onClick={goKakao} disabled={!amount}>💛 카카오톡으로 송금하기</button>
+            <button style={{display:'block', width:'100%', background:amount&&!kakaoClicked?'#FEE500':amount&&kakaoClicked?'#e0e0e0':'#e0e0e0', color:amount&&!kakaoClicked?'#333':amount&&kakaoClicked?'#bbb':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount&&!kakaoClicked?'pointer':'default'}} onClick={goKakao} disabled={!amount}>
+              {kakaoClicked ? '✓ 송금 완료 (다시 송금하기)' : '💛 카카오톡으로 송금하기'}
+            </button>
+            <button style={{display:'block', width:'100%', marginTop:12, background:kakaoClicked?color:'#e0e0e0', color:kakaoClicked?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:kakaoClicked?'pointer':'not-allowed'}} onClick={kakaoClicked ? () => setStep('confirm') : null} disabled={!kakaoClicked}>
+              {kakaoClicked ? '후원 완료 ✓' : '송금 후 활성화돼요'}
+            </button>
           </>
         ) : (
           <>
