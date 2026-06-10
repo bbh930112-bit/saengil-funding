@@ -14,7 +14,7 @@ const COLORS = [
 
 const SAMPLES = [
   { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#0064FF' },
-  { title: '👗 입을 옷이 없어 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
+  { title: '👗 입을 옷이 없어 비키니 입고 다녀요', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
 ]
 
 const DRAFT_KEY = 'saengil_draft'
