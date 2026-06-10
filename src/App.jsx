@@ -14,7 +14,7 @@ const COLORS = [
 
 const SAMPLES = [
   { title: '🎧 출근길 허전함을 채우는 후원', gift: '에어팟 프로', goal: 300000, raised: 210000, dday: 7, color: '#0064FF' },
-  { title: '👗 입을 옷이 없어 비키니 입고 다녀요', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
+  { title: '👗 입을 옷이 없어 비키니 입고 다님', gift: '여름 옷', goal: 200000, raised: 80000, dday: 14, color: '#fb8cac' },
 ]
 
 const DRAFT_KEY = 'saengil_draft'
@@ -771,8 +771,9 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 }
 
 function DonatePage({ funding, onBack, onDone, showToast }) {
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState(() => sessionStorage.getItem('donate_amount') || '')
   const [message, setMessage] = useState('')
+  const [sent, setSent] = useState(() => sessionStorage.getItem('donate_sent') === 'true')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
@@ -782,7 +783,16 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
     setLoading(true)
     await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:'익명' })
     setLoading(false)
+    sessionStorage.setItem('donate_sent', 'true')
+    sessionStorage.setItem('donate_amount', amount)
+    setSent(true)
     window.location.href = funding.kakao_link
+  }
+
+  function goResult() {
+    sessionStorage.removeItem('donate_sent')
+    sessionStorage.removeItem('donate_amount')
+    onDone()
   }
 
   return (
@@ -806,14 +816,17 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
         )}
         <div style={{marginBottom:20, textAlign:'center'}}>
           <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
-          <input style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" pattern="[0-9]*" />
+          <input style={{width:'100%', border:'2px solid '+(amount&&!sent?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:sent?'#bbb':'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box', background:sent?'#f8f8f8':'#fff'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => { if (!sent) setAmount(e.target.value) }} inputMode="numeric" pattern="[0-9]*" readOnly={sent} />
         </div>
         <div style={{marginBottom:24}}>
           <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디</label>
-          <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => setMessage(e.target.value)} />
+          <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:sent?'#bbb':'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box', background:sent?'#f8f8f8':'#fff'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => { if (!sent) setMessage(e.target.value) }} readOnly={sent} />
         </div>
-        <button style={{display:'block', width:'100%', background:amount&&!loading?'#FEE500':'#e0e0e0', color:amount&&!loading?'#333':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount&&!loading?'pointer':'not-allowed'}} onClick={goKakao} disabled={!amount||loading}>
-          {loading ? '저장 중...' : '💛 카카오톡으로 송금하기'}
+        <button style={{display:'block', width:'100%', background:!sent&&amount&&!loading?'#FEE500':'#e0e0e0', color:!sent&&amount&&!loading?'#333':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:!sent&&amount&&!loading?'pointer':'not-allowed', marginBottom:12}} onClick={!sent ? goKakao : null} disabled={sent||!amount||loading}>
+          {loading ? '저장 중...' : sent ? '✓ 송금 완료' : '💛 카카오톡으로 송금하기'}
+        </button>
+        <button style={{display:'block', width:'100%', background:sent?color:'#e0e0e0', color:sent?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:sent?'pointer':'not-allowed'}} onClick={sent ? goResult : null} disabled={!sent}>
+          후원 현황 보기
         </button>
       </div>
     </div>
