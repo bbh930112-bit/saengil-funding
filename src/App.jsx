@@ -760,15 +760,17 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 }
 
 function DonatePage({ funding, onBack, onDone, showToast }) {
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState(() => sessionStorage.getItem('donate_amount') || '')
   const [message, setMessage] = useState('')
-  const [step, setStep] = useState('input')
+  const [step, setStep] = useState(() => sessionStorage.getItem('donate_step') || 'input')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
 
   function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
+    sessionStorage.setItem('donate_step', 'confirm')
+    sessionStorage.setItem('donate_amount', amount)
     window.open(funding.kakao_link, '_blank')
     setStep('confirm')
   }
@@ -777,6 +779,8 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
     setLoading(true)
     await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:'익명' })
     setLoading(false)
+    sessionStorage.removeItem('donate_step')
+    sessionStorage.removeItem('donate_amount')
     onDone()
   }
 
