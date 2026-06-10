@@ -769,7 +769,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
 
   function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
-    window.location.href = funding.kakao_link
+    window.open(funding.kakao_link, '_blank')
     setStep('confirm')
   }
 
