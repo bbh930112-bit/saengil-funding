@@ -305,6 +305,10 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
 
   async function submit() {
     if (!form.title) { showToast('대제목을 입력해 주세요'); return }
+    if (form.birthday) {
+      const today = new Date().toISOString().split('T')[0]
+      if (form.birthday < today) { showToast('생일 날짜는 오늘 이후여야 해요'); return }
+    }
     if (!form.gift_name) { showToast('선물 이름을 입력해 주세요'); return }
     if (!form.goal_amount) { showToast('목표 금액을 입력해 주세요'); return }
     if (!form.kakao_link) { showToast('카카오 링크를 입력해 주세요'); return }
@@ -526,7 +530,12 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         <div style={{padding:'24px 20px 120px', background:'#fff'}}>
           <div style={{marginBottom:24}}>
             <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 날짜</label>
-            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box', maxWidth:'100%'}} type="date" value={form.birthday} onChange={e => set('birthday', e.target.value)} max="2099-12-31" />
+            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box', maxWidth:'100%'}} type="date" value={form.birthday} onChange={e => {
+                const val = e.target.value
+                const today = new Date().toISOString().split('T')[0]
+                if (val && val < today) { showToast('오늘 이후 날짜만 입력할 수 있어요'); return }
+                set('birthday', val)
+              }} min={new Date().toISOString().split('T')[0]} max="2099-12-31" />
           </div>
 
           <div style={{marginBottom:24}}>
@@ -762,52 +771,18 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 }
 
 function DonatePage({ funding, onBack, onDone, showToast }) {
-  const [amount, setAmount] = useState(() => sessionStorage.getItem('donate_amount') || '')
+  const [amount, setAmount] = useState('')
   const [message, setMessage] = useState('')
-  const [step, setStep] = useState(() => sessionStorage.getItem('donate_step') || 'input')
-  const [kakaoClicked, setKakaoClicked] = useState(() => sessionStorage.getItem('donate_kakao_clicked') === 'true')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
 
-  // 외부 페이지 갔다 돌아왔는지 감지
-  useEffect(() => {
-    const onFocus = () => {
-      if (sessionStorage.getItem('donate_kakao_clicked') === 'true') {
-        setKakaoClicked(true)
-      }
-    }
-    window.addEventListener('focus', onFocus)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && sessionStorage.getItem('donate_kakao_clicked') === 'true') {
-        setKakaoClicked(true)
-      }
-    })
-    return () => window.removeEventListener('focus', onFocus)
-  }, [])
-
-  function goKakao() {
+  async function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
-    if (kakaoClicked) {
-      if (window.confirm('이미 송금하셨나요? 다시 송금할까요?')) {
-        sessionStorage.setItem('donate_amount', amount)
-        window.location.href = funding.kakao_link
-      }
-      return
-    }
-    sessionStorage.setItem('donate_amount', amount)
-    sessionStorage.setItem('donate_kakao_clicked', 'true')
-    window.location.href = funding.kakao_link
-  }
-
-  async function done() {
     setLoading(true)
     await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:'익명' })
     setLoading(false)
-    sessionStorage.removeItem('donate_step')
-    sessionStorage.removeItem('donate_amount')
-    sessionStorage.removeItem('donate_kakao_clicked')
-    onDone()
+    window.location.href = funding.kakao_link
   }
 
   return (
@@ -817,46 +792,29 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>후원하기</div>
       </div>
       <div style={{padding:'28px 20px 40px'}}>
-        {step === 'input' ? (
-          <>
-            {benefits.length > 0 && (
-              <div style={{marginBottom:28, textAlign:'center'}}>
-                <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:16}}>후원의 효과</div>
-                <div style={{padding:'16px', background:'#f8f8f8', borderRadius:14}}>
-                  {benefits.map((b, i) => (
-                    <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < benefits.length-1 ? 10 : 0, textAlign:'center'}}>
-                      {b}
-                    </div>
-                  ))}
+        {benefits.length > 0 && (
+          <div style={{marginBottom:28, textAlign:'center'}}>
+            <div style={{fontSize:22, fontWeight:700, color:'#111', marginBottom:16}}>후원의 효과</div>
+            <div style={{padding:'16px', background:'#f8f8f8', borderRadius:14}}>
+              {benefits.map((b, i) => (
+                <div key={i} style={{fontSize:15, color:'#333', marginBottom: i < benefits.length-1 ? 10 : 0, textAlign:'center'}}>
+                  {b}
                 </div>
-              </div>
-            )}
-            <div style={{marginBottom:24, textAlign:'center'}}>
-              <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
-              <input style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" pattern="[0-9]*" />
+              ))}
             </div>
-            <button style={{display:'block', width:'100%', background:amount&&!kakaoClicked?'#FEE500':amount&&kakaoClicked?'#e0e0e0':'#e0e0e0', color:amount&&!kakaoClicked?'#333':amount&&kakaoClicked?'#bbb':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount&&!kakaoClicked?'pointer':'default'}} onClick={goKakao} disabled={!amount}>
-              {kakaoClicked ? '✓ 송금 완료 (다시 송금하기)' : '💛 카카오톡으로 송금하기'}
-            </button>
-            <button style={{display:'block', width:'100%', marginTop:12, background:kakaoClicked?color:'#e0e0e0', color:kakaoClicked?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:kakaoClicked?'pointer':'not-allowed'}} onClick={kakaoClicked ? () => setStep('confirm') : null} disabled={!kakaoClicked}>
-              {kakaoClicked ? '후원 완료 ✓' : '송금 후 활성화돼요'}
-            </button>
-          </>
-        ) : (
-          <>
-            <div style={{background:'#f0fff4', border:'1px solid #69d98c', borderRadius:14, padding:18, marginBottom:24, textAlign:'center'}}>
-              <div style={{fontSize:15, fontWeight:700, color:'#2a8a4a', marginBottom:4}}>후원이 완료되었습니다!</div>
-              <div style={{fontSize:13, color:'#555'}}>축하 한마디를 남겨 주세요!</div>
-            </div>
-            <div style={{marginBottom:24}}>
-              <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디 <span style={{fontSize:11, color:'#aaa'}}>선택</span></label>
-              <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => setMessage(e.target.value)} />
-            </div>
-            <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={done} disabled={loading}>
-              {loading ? '저장 중...' : '후원 완료'}
-            </button>
-          </>
+          </div>
         )}
+        <div style={{marginBottom:20, textAlign:'center'}}>
+          <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
+          <input style={{width:'100%', border:'2px solid '+(amount?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => setAmount(e.target.value)} inputMode="numeric" pattern="[0-9]*" />
+        </div>
+        <div style={{marginBottom:24}}>
+          <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디</label>
+          <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => setMessage(e.target.value)} />
+        </div>
+        <button style={{display:'block', width:'100%', background:amount&&!loading?'#FEE500':'#e0e0e0', color:amount&&!loading?'#333':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:amount&&!loading?'pointer':'not-allowed'}} onClick={goKakao} disabled={!amount||loading}>
+          {loading ? '저장 중...' : '💛 카카오톡으로 송금하기'}
+        </button>
       </div>
     </div>
   )
