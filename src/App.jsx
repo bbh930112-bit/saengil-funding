@@ -771,8 +771,12 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
     sessionStorage.setItem('donate_step', 'confirm')
     sessionStorage.setItem('donate_amount', amount)
-    window.open(funding.kakao_link, '_blank')
-    setStep('confirm')
+    const isKakao = /KAKAOTALK/i.test(navigator.userAgent)
+    if (isKakao) {
+      window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(funding.kakao_link)
+    } else {
+      window.location.href = funding.kakao_link
+    }
   }
 
   async function done() {
