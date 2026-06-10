@@ -297,8 +297,10 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     setSlugStatus(data ? 'error' : 'ok')
   }
 
-  const isEditMode = !!(form.editId && !form.draftId)
-  const slugOk = isEditMode || slugStatus === 'ok'
+  const isEditMode = !!(form.editId)
+  const originalSlug = editFunding?.is_draft ? '' : (editFunding?.slug || '')
+  const slugUnchanged = isEditMode && form.slug === originalSlug
+  const slugOk = slugUnchanged || slugStatus === 'ok'
   const ready = form.title && form.gift_name && form.goal_amount && form.kakao_link && form.slug && slugOk
 
   async function submit() {
@@ -307,7 +309,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     if (!form.goal_amount) { showToast('목표 금액을 입력해 주세요'); return }
     if (!form.kakao_link) { showToast('카카오 링크를 입력해 주세요'); return }
     if (!form.slug) { showToast('펀딩 링크를 입력해 주세요'); return }
-    if (!isEditMode && slugStatus !== 'ok') { showToast('링크 중복확인을 해 주세요'); return }
+    if (!slugUnchanged && slugStatus !== 'ok') { showToast('링크 중복확인을 해 주세요'); return }
     if (!user || !user.id) { showToast('로그인이 필요해요. 다시 로그인해 주세요'); return }
     setLoading(true)
     const payload = {
@@ -688,7 +690,7 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
   return (
     <div style={{...wrap}}>
-      <div style={{background:color, padding:'10px 20px 10px', paddingTop:'calc(10px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 2px 6px rgba(0,0,0,0.12)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
+      <div style={{background:color, padding:'20px 20px 20px', paddingTop:'calc(20px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 2px 6px rgba(0,0,0,0.12)', position:!user ? 'sticky' : 'relative', top:0, zIndex:10}}>
         <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>{funding.title}</div>
         {user && (
           <div style={{display:'flex', gap:8, flexShrink:0, marginLeft:12}}>
