@@ -99,8 +99,9 @@ export default function App() {
   if (page === 'auth') return <AuthPage onLogin={googleLogin} onBack={() => goPage('home')} />
   if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {} goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
   if (page === 'create') return <CreatePage user={user} editFunding={editFunding} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} onSaveDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
-  if (page === 'funding') return <FundingPage funding={funding} donations={donations} onDonate={() => goPage('donate')} onReload={() => slug && loadFunding(slug)} toast={toast} user={user} onHome={() => goPage('my')} />
-  if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('funding')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
+  if (page === 'funding') return <FundingPage funding={funding} donations={donations} onDonate={() => goPage('message')} onReload={() => slug && loadFunding(slug)} toast={toast} user={user} onHome={() => goPage('my')} />
+  if (page === 'message') return <MessagePage funding={funding} onBack={() => goPage('funding')} onNext={() => goPage('donate')} />
+  if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('message')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
   if (page === 'done') return <DonePage onBack={() => goPage('funding')} />
   if (page === 'privacy') return <PrivacyPage onBack={() => goPage('home')} />
   if (page === 'about') return <AboutPage onBack={() => goPage('home')} />
@@ -770,7 +771,11 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       </div>
 
       <div style={{padding:'0 24px 40px'}}>
-        <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(0,0,0,0.18)'}} onClick={onDonate}>후원하기 🎉</button>
+        <button style={{display:'block', width:'100%', background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(0,0,0,0.18)'}} onClick={onDonate}>후원하기</button>
+        <div onClick={() => window.location.href = 'https://www.saengilfunding.com'} style={{marginTop:12, background:'#f8f8f8', borderRadius:12, padding:'14px 18px', cursor:'pointer', textAlign:'center'}}>
+          <div style={{fontSize:12, color:'#888', marginBottom:4}}>나도 생일에 원하는 선물 받고 싶다면?</div>
+          <div style={{fontSize:14, fontWeight:700, color:'#555'}}>생일펀딩 만들기 →</div>
+        </div>
       </div>
 
       {toast && <div style={{position:'fixed', bottom:90, left:'50%', transform:'translateX(-50%)', background:'#222', color:'#fff', borderRadius:10, padding:'12px 20px', fontSize:14, fontWeight:500, zIndex:9999, whiteSpace:'nowrap'}}>{toast}</div>}
@@ -778,13 +783,37 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
   )
 }
 
+function MessagePage({ funding, onBack, onNext }) {
+  const [message, setMessage] = useState(() => sessionStorage.getItem('donate_message') || '')
+  const color = funding?.color || '#0064FF'
+
+  function goNext() {
+    sessionStorage.setItem('donate_message', message)
+    onNext()
+  }
+
+  return (
+    <div style={wrap}>
+      <div style={{background:color, padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+        <button style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:14}} onClick={onBack}>←</button>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>생일 축하 메시지</div>
+      </div>
+      <div style={{padding:'28px 20px 40px'}}>
+        <div style={{fontSize:15, color:'#555', marginBottom:24, lineHeight:1.7}}>{funding?.title}에게 생일 축하 메시지를 남겨보세요.</div>
+        <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:160, boxSizing:'border-box'}} placeholder="생일을 축하하는 한마디를 남겨주세요" value={message} onChange={e => setMessage(e.target.value)} autoFocus />
+        <button style={{display:'block', width:'100%', marginTop:20, background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={goNext}>다음</button>
+      </div>
+    </div>
+  )
+}
+
 function DonatePage({ funding, onBack, onDone, showToast }) {
   const [amount, setAmount] = useState(() => sessionStorage.getItem('donate_amount') || '')
-  const [message, setMessage] = useState('')
   const [sent, setSent] = useState(() => sessionStorage.getItem('donate_sent') === 'true')
   const [loading, setLoading] = useState(false)
   const color = funding?.color || '#0064FF'
   const benefits = funding?.benefit_message ? funding.benefit_message.split('\n').filter(Boolean) : []
+  const message = sessionStorage.getItem('donate_message') || ''
 
   async function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
@@ -800,6 +829,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   function goResult() {
     sessionStorage.removeItem('donate_sent')
     sessionStorage.removeItem('donate_amount')
+    sessionStorage.removeItem('donate_message')
     onDone()
   }
 
@@ -822,16 +852,12 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
             </div>
           </div>
         )}
-        <div style={{marginBottom:20, textAlign:'center'}}>
+        <div style={{marginBottom:24, textAlign:'center'}}>
           <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>후원 금액</label>
           <input style={{width:'100%', border:'2px solid '+(amount&&!sent?color:'#e8e8e8'), borderRadius:14, padding:'16px', fontSize:22, fontWeight:700, color:sent?'#bbb':'#111', outline:'none', fontFamily:'inherit', textAlign:'center', boxSizing:'border-box', background:sent?'#f8f8f8':'#fff'}} type="number" placeholder="금액을 입력해 주세요" value={amount} onChange={e => { if (!sent) setAmount(e.target.value) }} inputMode="numeric" pattern="[0-9]*" readOnly={sent} />
         </div>
-        <div style={{marginBottom:24}}>
-          <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 축하 한마디</label>
-          <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:sent?'#bbb':'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:80, boxSizing:'border-box', background:sent?'#f8f8f8':'#fff'}} placeholder="생일 축하해! 🎂" value={message} onChange={e => { if (!sent) setMessage(e.target.value) }} readOnly={sent} />
-        </div>
         <button style={{display:'block', width:'100%', background:!sent&&amount&&!loading?'#FEE500':'#e0e0e0', color:!sent&&amount&&!loading?'#333':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:!sent&&amount&&!loading?'pointer':'not-allowed', marginBottom:12}} onClick={!sent ? goKakao : null} disabled={sent||!amount||loading}>
-          {loading ? '저장 중...' : sent ? '✓ 송금 완료' : '💛 카카오톡으로 송금하기'}
+          {loading ? '저장 중...' : sent ? '송금 완료' : '카카오톡으로 송금하기'}
         </button>
         <button style={{display:'block', width:'100%', background:sent?color:'#e0e0e0', color:sent?'#fff':'#bbb', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:sent?'pointer':'not-allowed'}} onClick={sent ? goResult : null} disabled={!sent}>
           후원 현황 보기
