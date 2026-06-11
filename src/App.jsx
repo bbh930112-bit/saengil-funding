@@ -681,6 +681,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
         )}
 
         <button style={{display:'block', width:'100%', background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:8}} onClick={onNew}>+ 새 펀딩 만들기</button>
+        <div style={{textAlign:'center', marginTop:24, fontSize:12, color:'#bbb'}}>오류 및 문의: saeng1fd@gmail.com</div>
       </div>
       {toast && <div style={{position:'fixed', bottom:32, left:'50%', transform:'translateX(-50%)', background:'#222', color:'#fff', borderRadius:10, padding:'12px 20px', fontSize:14, fontWeight:500, zIndex:9999, whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
