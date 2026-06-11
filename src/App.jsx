@@ -666,6 +666,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     {btn('수정', () => onEdit(f))}
                     {btn('초기화', () => reset(f.id), '#fff3f3', '#e74c3c')}
                   </div>
+                  <DonationManager fundingId={f.id} color={fc} showToast={showToast} onReload={onReload} />
                 </div>
               )
             })}
@@ -878,6 +879,61 @@ function PrivacyPage({ onBack }) {
 
         <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
       </div>
+    </div>
+  )
+}
+
+function DonationManager({ fundingId, color, showToast, onReload }) {
+  const [open, setOpen] = useState(false)
+  const [list, setList] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  async function load() {
+    setLoading(true)
+    const { data } = await supabase.from('donations').select('*').eq('funding_id', fundingId).order('created_at', { ascending: false })
+    setList(data || [])
+    setLoading(false)
+  }
+
+  function toggle() {
+    const next = !open
+    setOpen(next)
+    if (next) load()
+  }
+
+  async function removeOne(id) {
+    if (!window.confirm('이 후원 내역을 삭제할까요?')) return
+    const { error } = await supabase.from('donations').delete().eq('id', id)
+    if (error) { showToast('삭제 실패: ' + error.message); return }
+    setList(prev => prev.filter(d => d.id !== id))
+    showToast('후원 내역이 삭제됐어요')
+    if (onReload) onReload()
+  }
+
+  return (
+    <div style={{marginTop:10}}>
+      <button onClick={toggle} style={{background:'none', border:'none', color:'#888', fontSize:12, fontWeight:600, cursor:'pointer', padding:'4px 0'}}>
+        후원 내역 관리 {open ? '▲' : '▼'}
+      </button>
+      {open && (
+        <div style={{marginTop:8}}>
+          {loading ? (
+            <div style={{fontSize:12, color:'#aaa', padding:'8px 0'}}>불러오는 중...</div>
+          ) : list.length === 0 ? (
+            <div style={{fontSize:12, color:'#aaa', padding:'8px 0'}}>아직 후원 내역이 없어요</div>
+          ) : (
+            list.map(d => (
+              <div key={d.id} style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, padding:'10px 12px', background:'#fafafa', borderRadius:10, marginBottom:6}}>
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{fontSize:14, fontWeight:700, color:'#111'}}>{won(d.amount)}</div>
+                  {d.message && d.message.trim() && <div style={{fontSize:12, color:'#888', marginTop:2, wordBreak:'break-all'}}>{d.message}</div>}
+                </div>
+                <button onClick={() => removeOne(d.id)} style={{flexShrink:0, background:'#fff3f3', border:'none', borderRadius:8, padding:'6px 10px', fontSize:12, color:'#e74c3c', fontWeight:600, cursor:'pointer'}}>삭제</button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   )
 }
