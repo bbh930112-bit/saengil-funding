@@ -95,7 +95,7 @@ export default function App() {
   }
 
   if (page === 'loading') return <div style={{...wrap, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, color:'#888'}}>펀딩 접속 중...</div>
-  if (page === 'home') return <HomePage onStart={() => goPage('auth')} onPrivacy={() => goPage('privacy')} />
+  if (page === 'home') return <HomePage onStart={() => goPage('auth')} onPrivacy={() => goPage('privacy')} onAbout={() => goPage('about')} onContact={() => goPage('contact')} onTerms={() => goPage('terms')} />
   if (page === 'auth') return <AuthPage onLogin={googleLogin} onBack={() => goPage('home')} />
   if (page === 'my') return <MyPage user={user} fundings={myFundings} onNew={() => { setEditFunding(null); try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_tab') } catch(e) {} goPage('create') }} onView={(f) => { setFunding(f); setSlug(f.slug); goPage('funding') }} onEdit={(f) => { setEditFunding(f); goPage('create') }} showToast={showToast} onReload={() => loadMy(user.id)} toast={toast} />
   if (page === 'create') return <CreatePage user={user} editFunding={editFunding} onBack={() => goPage('my')} onDone={() => { loadMy(user.id); goPage('my') }} onSaveDone={() => { loadMy(user.id); goPage('my') }} showToast={showToast} />
@@ -103,10 +103,13 @@ export default function App() {
   if (page === 'donate') return <DonatePage funding={funding} onBack={() => goPage('funding')} onDone={() => { goPage('done'); slug && loadFunding(slug) }} showToast={showToast} />
   if (page === 'done') return <DonePage onBack={() => goPage('funding')} />
   if (page === 'privacy') return <PrivacyPage onBack={() => goPage('home')} />
+  if (page === 'about') return <AboutPage onBack={() => goPage('home')} />
+  if (page === 'contact') return <ContactPage onBack={() => goPage('home')} />
+  if (page === 'terms') return <TermsPage onBack={() => goPage('home')} />
   return null
 }
 
-function HomePage({ onStart, onPrivacy }) {
+function HomePage({ onStart, onPrivacy, onAbout, onContact, onTerms }) {
   return (
     <div style={wrap}>
       <div style={{background:'#0064FF', padding:'52px 24px 28px', color:'#fff'}}>
@@ -133,7 +136,10 @@ function HomePage({ onStart, onPrivacy }) {
           )
         })}
         <button style={{display:'block', width:'100%', background:'#0064FF', color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer', marginTop:24}} onClick={onStart}>나도 만들기</button>
-        <div style={{textAlign:'center', marginTop:16}}>
+        <div style={{textAlign:'center', marginTop:16, display:'flex', justifyContent:'center', gap:16, flexWrap:'wrap'}}>
+          <button onClick={onAbout} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>서비스 소개</button>
+          <button onClick={onContact} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>문의하기</button>
+          <button onClick={onTerms} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>이용약관</button>
           <button onClick={onPrivacy} style={{background:'none', border:'none', color:'#bbb', fontSize:12, cursor:'pointer', textDecoration:'underline'}}>개인정보처리방침</button>
         </div>
       </div>
@@ -877,6 +883,105 @@ function PrivacyPage({ onBack }) {
 
         <div style={{fontWeight:700, color:'#111', marginBottom:6}}>7. 문의</div>
         <div style={{marginBottom:16}}>개인정보 관련 문의는 saeng1fd@gmail.com 으로 연락 주세요.</div>
+
+        <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
+      </div>
+    </div>
+  )
+}
+
+function AboutPage({ onBack }) {
+  return (
+    <div style={wrap}>
+      <div style={{background:'#0064FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+        <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:14, cursor:'pointer'}}>←</button>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>서비스 소개</div>
+      </div>
+      <div style={{padding:'28px 24px 60px', fontSize:14, color:'#444', lineHeight:1.9}}>
+        <div style={{fontSize:22, fontWeight:800, color:'#111', marginBottom:8}}>생일펀딩</div>
+        <div style={{fontSize:15, color:'#555', marginBottom:28}}>생일 선물, 큰 거 하나 받고 싶다</div>
+
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:8}}>서비스란?</div>
+        <div style={{marginBottom:24}}>생일펀딩은 생일을 맞이하는 사람이 직접 펀딩 페이지를 만들고, 친구들이 소액씩 모아 원하는 선물을 받을 수 있도록 돕는 크라우드펀딩 서비스예요. 자잘한 선물 대신 정말 원하는 선물 하나를 받아보세요.</div>
+
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:8}}>어떻게 사용하나요?</div>
+        <div style={{marginBottom:6}}>1. 구글 계정으로 로그인해요</div>
+        <div style={{marginBottom:6}}>2. 원하는 선물과 목표 금액을 입력해요</div>
+        <div style={{marginBottom:6}}>3. 카카오페이 송금 링크를 연결해요</div>
+        <div style={{marginBottom:6}}>4. 나만의 펀딩 링크를 친구들에게 공유해요</div>
+        <div style={{marginBottom:24}}>5. 친구들이 원하는 만큼 후원해줘요 🎉</div>
+
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:8}}>수수료</div>
+        <div style={{marginBottom:24}}>생일펀딩은 수수료를 받지 않아요. 친구들이 후원한 금액 전액이 카카오페이를 통해 직접 전달돼요.</div>
+
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:8}}>운영자 정보</div>
+        <div>서비스 운영: 생일펀딩팀</div>
+        <div>문의: saeng1fd@gmail.com</div>
+        <div style={{fontSize:12, color:'#aaa', marginTop:24}}>서비스 시작일: 2026년 6월</div>
+      </div>
+    </div>
+  )
+}
+
+function ContactPage({ onBack }) {
+  return (
+    <div style={wrap}>
+      <div style={{background:'#0064FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+        <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:14, cursor:'pointer'}}>←</button>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>문의하기</div>
+      </div>
+      <div style={{padding:'28px 24px 60px', fontSize:14, color:'#444', lineHeight:1.9}}>
+        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:16}}>무엇이든 물어보세요</div>
+
+        <div style={{background:'#f8f8f8', borderRadius:16, padding:'20px 20px', marginBottom:24}}>
+          <div style={{fontSize:13, color:'#888', marginBottom:4}}>이메일 문의</div>
+          <div style={{fontSize:16, fontWeight:700, color:'#0064FF'}}>saeng1fd@gmail.com</div>
+        </div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:8}}>이런 경우 문의해 주세요</div>
+        <div style={{marginBottom:6}}>• 서비스 이용 중 오류가 발생한 경우</div>
+        <div style={{marginBottom:6}}>• 계정 또는 펀딩 관련 문제가 생긴 경우</div>
+        <div style={{marginBottom:6}}>• 개인정보 삭제 요청</div>
+        <div style={{marginBottom:6}}>• 기타 서비스 관련 문의</div>
+
+        <div style={{fontSize:12, color:'#aaa', marginTop:28}}>평균 응답 시간: 1~3 영업일 이내</div>
+      </div>
+    </div>
+  )
+}
+
+function TermsPage({ onBack }) {
+  return (
+    <div style={wrap}>
+      <div style={{background:'#0064FF', padding:'52px 20px 20px', display:'flex', alignItems:'center', gap:12}}>
+        <button onClick={onBack} style={{background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 10px', fontSize:14, cursor:'pointer'}}>←</button>
+        <div style={{fontSize:17, fontWeight:700, color:'#fff'}}>이용약관</div>
+      </div>
+      <div style={{padding:'24px 20px 60px', fontSize:14, color:'#444', lineHeight:1.8}}>
+        <div style={{fontWeight:700, fontSize:16, color:'#111', marginBottom:16}}>생일펀딩 이용약관</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제1조 (목적)</div>
+        <div style={{marginBottom:16}}>이 약관은 생일펀딩(이하 "서비스")의 이용 조건 및 절차, 이용자와 서비스 운영자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제2조 (서비스 이용)</div>
+        <div style={{marginBottom:16}}>서비스는 생일 펀딩 페이지 생성 및 공유 기능을 제공합니다. 이용자는 구글 계정으로 로그인하여 서비스를 이용할 수 있습니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제3조 (이용자 의무)</div>
+        <div style={{marginBottom:6}}>• 타인을 사칭하거나 허위 정보를 등록하지 않습니다.</div>
+        <div style={{marginBottom:6}}>• 서비스를 불법적인 목적으로 사용하지 않습니다.</div>
+        <div style={{marginBottom:16}}>• 다른 이용자의 정보를 무단으로 수집하지 않습니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제4조 (결제 및 환불)</div>
+        <div style={{marginBottom:16}}>모든 후원 송금은 카카오페이를 통해 직접 이루어지며, 생일펀딩은 송금 과정에 개입하지 않습니다. 환불은 후원자와 펀딩 개설자 간의 직접 협의로 처리됩니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제5조 (서비스 중단)</div>
+        <div style={{marginBottom:16}}>운영자는 시스템 점검, 장애 등 불가피한 경우 서비스를 일시 중단할 수 있습니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제6조 (면책조항)</div>
+        <div style={{marginBottom:16}}>생일펀딩은 이용자 간의 금전 거래에 대한 책임을 지지 않습니다. 카카오페이 송금 과정에서 발생하는 문제는 카카오페이 정책을 따릅니다.</div>
+
+        <div style={{fontWeight:700, color:'#111', marginBottom:6}}>제7조 (문의)</div>
+        <div style={{marginBottom:16}}>이용약관 관련 문의는 saeng1fd@gmail.com 으로 연락 주세요.</div>
 
         <div style={{fontSize:12, color:'#aaa', marginTop:24}}>시행일: 2026년 6월 9일</div>
       </div>
