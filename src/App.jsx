@@ -539,7 +539,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         <div style={{padding:'24px 20px 120px', background:'#fff'}}>
           <div style={{marginBottom:24}}>
             <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>표시 이름 <span style={{fontSize:11, color:'#aaa', fontWeight:400}}>펀딩 페이지에 표시돼요</span></label>
-            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} placeholder="예: 민지, 짱이쁜민지" value={form.creator_name} onChange={e => set('creator_name', e.target.value)} />
+            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} placeholder="예: 하니, 강해린고양이" value={form.creator_name} onChange={e => set('creator_name', e.target.value)} />
           </div>
 
           <div style={{marginBottom:24}}>
@@ -688,7 +688,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     </div>
                     <button onClick={() => del(f.id)} style={{background:'#f5f5f5', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, color:'#aaa', cursor:'pointer', fontWeight:500}}>삭제</button>
                   </div>
-                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} onCopy={(raised, pct, count) => copyLinkWithText(f, count, pct)} onCopyLinkOnly={() => copyLinkOnly(f)} onShowMenu={copyMenuId === f.id} link={link} />
+                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} onCopy={(raised, pct, count) => copyLinkWithText(f, count, pct)} onCopyLinkOnly={() => copyLinkOnly(f)} onShowMenu={copyMenuId === f.id} onToggleMenu={() => setCopyMenuId(copyMenuId === f.id ? null : f.id)} link={link} />
                   <div style={{display:'flex', gap:8}}>
                     {btn('펀딩 현황', () => onView(f), fc, '#fff')}
                     {btn('수정', () => onEdit(f))}
@@ -1100,7 +1100,7 @@ function DonationManager({ fundingId, color, showToast, onReload }) {
   )
 }
 
-function FundingProgress({ fundingId, goalAmount, color, onCopy, onCopyLinkOnly, onShowMenu, link }) {
+function FundingProgress({ fundingId, goalAmount, color, onCopy, onCopyLinkOnly, onShowMenu, onToggleMenu, link }) {
   const [raised, setRaised] = useState(0)
   const [count, setCount] = useState(0)
 
@@ -1119,7 +1119,7 @@ function FundingProgress({ fundingId, goalAmount, color, onCopy, onCopyLinkOnly,
     <div style={{marginBottom:14}}>
       {link && onCopy && (
         <div style={{marginBottom:12}}>
-          <div style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}} onClick={() => { if (onCopyLinkOnly) { onCopy(raised, pct, count) } }}>
+          <div style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}} onClick={() => onToggleMenu && onToggleMenu()}>
             <div style={{fontSize:14, color:color, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
             <div style={{fontSize:16, flexShrink:0}}>📋</div>
           </div>
