@@ -215,6 +215,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
         sub_message: editFunding.sub_message || '',
         goal_amount: editFunding.goal_amount ? String(editFunding.goal_amount) : '',
         benefit_items: editFunding.benefit_message ? editFunding.benefit_message.split('\n').filter(Boolean) : ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'],
+        creator_name: editFunding.creator_name || '',
         kakao_link: editFunding.kakao_link || '',
         slug: editFunding.is_draft ? '' : (editFunding.slug || ''),
         birthday: editFunding.birthday || '',
@@ -232,7 +233,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
     return {
       title:'', gift_name:'', sub_message:'', goal_amount:'',
       benefit_items: ['선물로 행복해하는 나를 볼 수 있다!', '가족들 건강하다!', '내가 행복하다!'],
-      kakao_link:'', slug:'', birthday:'', color:'#FF9F5A', image:'', ...parsedSaved
+      kakao_link:'', slug:'', birthday:'', color:'#FF9F5A', image:'', creator_name:'', ...parsedSaved
     }
   }
   const [form, setForm] = useState(getInitialForm)
@@ -334,6 +335,7 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       birthday: form.birthday || null,
       color: form.color,
       image: form.image || null,
+      creator_name: form.creator_name || '',
       is_draft: false,
     }
     let error
@@ -536,6 +538,11 @@ function CreatePage({ user, editFunding, onBack, onDone, onSaveDone, showToast }
       {tab === 'settings' && (
         <div style={{padding:'24px 20px 120px', background:'#fff'}}>
           <div style={{marginBottom:24}}>
+            <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>표시 이름 <span style={{fontSize:11, color:'#aaa', fontWeight:400}}>펀딩 페이지에 표시돼요</span></label>
+            <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} placeholder="예: 민지, 짱이쁜민지" value={form.creator_name} onChange={e => set('creator_name', e.target.value)} />
+          </div>
+
+          <div style={{marginBottom:24}}>
             <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>생일 날짜</label>
             <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box', maxWidth:'100%'}} type="date" value={form.birthday} onChange={e => {
                 const val = e.target.value
@@ -599,13 +606,27 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
     await supabase.from('donations').delete().eq('funding_id', id)
     onReload(); showToast('초기화됐어요')
   }
-  async function copyLink(f, raised, pct) {
+  const [copyMenuId, setCopyMenuId] = useState(null)
+
+  async function copyLinkOnly(f) {
+    const link = 'https://saengilfunding.com/' + f.slug
+    await navigator.clipboard.writeText(link)
+    showToast('링크가 복사됐어요!')
+    setCopyMenuId(null)
+  }
+
+  async function copyLinkWithText(f, count, pct) {
     const link = 'https://saengilfunding.com/' + f.slug
     const dd = dday(f.birthday)
     const ddText = dd ? '\n' + dd.label : ''
-    const text = `🎂 ${f.title}\n현재 ${pct}% (${raised}명 참여)${ddText}\n\n${link}`
+    const text = `🎂 ${f.title}\n현재 ${pct}% (${count}명 참여)${ddText}\n\n${link}`
     await navigator.clipboard.writeText(text)
     showToast('링크가 복사됐어요!')
+    setCopyMenuId(null)
+  }
+
+  async function copyLink(f, count, pct) {
+    setCopyMenuId(copyMenuId === f.id ? null : f.id)
   }
   const name = user?.user_metadata?.name || user?.user_metadata?.full_name || '내'
 
@@ -667,7 +688,7 @@ function MyPage({ user, fundings, onNew, onView, onEdit, showToast, onReload, to
                     </div>
                     <button onClick={() => del(f.id)} style={{background:'#f5f5f5', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, color:'#aaa', cursor:'pointer', fontWeight:500}}>삭제</button>
                   </div>
-                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} onCopy={(raised, pct, count) => copyLink(f, count, pct)} link={link} />
+                  <FundingProgress fundingId={f.id} goalAmount={f.goal_amount} color={fc} onCopy={(raised, pct, count) => copyLinkWithText(f, count, pct)} onCopyLinkOnly={() => copyLinkOnly(f)} onShowMenu={copyMenuId === f.id} link={link} />
                   <div style={{display:'flex', gap:8}}>
                     {btn('펀딩 현황', () => onView(f), fc, '#fff')}
                     {btn('수정', () => onEdit(f))}
@@ -735,7 +756,8 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
       )}
 
       <div style={{padding:'20px 24px 0'}}>
-        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:12, marginTop:8}}>{funding.gift_name} 🎁</div>
+        {funding.creator_name && <div style={{fontSize:12, color:'#aaa', fontWeight:400, marginTop:8, marginBottom:4}}>{funding.creator_name}님의 펀딩</div>}
+        <div style={{fontSize:18, fontWeight:700, color:'#111', marginBottom:12}}>{funding.gift_name} 🎁</div>
 
         <div style={{marginBottom:24}}>
           <div style={{borderTop:'1px solid #f0f0f0', paddingTop:14, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
@@ -785,10 +807,12 @@ function FundingPage({ funding, donations, onDonate, onReload, toast, user, onHo
 
 function MessagePage({ funding, onBack, onNext }) {
   const [message, setMessage] = useState(() => sessionStorage.getItem('donate_message') || '')
+  const [donorName, setDonorName] = useState(() => sessionStorage.getItem('donate_name') || '')
   const color = funding?.color || '#0064FF'
 
   function goNext() {
     sessionStorage.setItem('donate_message', message)
+    sessionStorage.setItem('donate_name', donorName.trim() || '익명')
     onNext()
   }
 
@@ -800,7 +824,11 @@ function MessagePage({ funding, onBack, onNext }) {
       </div>
       <div style={{padding:'28px 20px 40px'}}>
         <div style={{fontSize:15, color:'#555', marginBottom:24, lineHeight:1.7}}>{funding?.title}에게 생일 축하 메시지를 남겨보세요.</div>
-        <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:160, boxSizing:'border-box'}} placeholder="생일을 축하하는 한마디를 남겨주세요" value={message} onChange={e => setMessage(e.target.value)} autoFocus />
+        <div style={{marginBottom:20}}>
+          <label style={{fontSize:13, fontWeight:600, color:'#333', marginBottom:8, display:'block'}}>이름 <span style={{fontSize:11, color:'#aaa', fontWeight:400}}>비워두면 익명으로 표시돼요</span></label>
+          <input style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'14px 16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', boxSizing:'border-box'}} placeholder="이름을 입력해 주세요" value={donorName} onChange={e => setDonorName(e.target.value)} />
+        </div>
+        <textarea style={{width:'100%', border:'1.5px solid #e8e8e8', borderRadius:12, padding:'16px', fontSize:15, color:'#111', outline:'none', fontFamily:'inherit', resize:'none', minHeight:140, boxSizing:'border-box'}} placeholder="생일을 축하하는 한마디를 남겨주세요" value={message} onChange={e => setMessage(e.target.value)} />
         <button style={{display:'block', width:'100%', marginTop:20, background:color, color:'#fff', border:'none', borderRadius:14, padding:'17px 0', fontSize:16, fontWeight:700, cursor:'pointer'}} onClick={goNext}>다음</button>
       </div>
     </div>
@@ -818,7 +846,8 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
   async function goKakao() {
     if (!amount || Number(amount) < 1) { showToast('금액을 입력해 주세요'); return }
     setLoading(true)
-    await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:'익명' })
+    const donorName = sessionStorage.getItem('donate_name') || '익명'
+    await supabase.from('donations').insert({ funding_id:funding.id, amount:parseInt(amount), message:message.trim(), name:donorName })
     setLoading(false)
     sessionStorage.setItem('donate_sent', 'true')
     sessionStorage.setItem('donate_amount', amount)
@@ -830,6 +859,7 @@ function DonatePage({ funding, onBack, onDone, showToast }) {
     sessionStorage.removeItem('donate_sent')
     sessionStorage.removeItem('donate_amount')
     sessionStorage.removeItem('donate_message')
+    sessionStorage.removeItem('donate_name')
     onDone()
   }
 
@@ -1070,7 +1100,7 @@ function DonationManager({ fundingId, color, showToast, onReload }) {
   )
 }
 
-function FundingProgress({ fundingId, goalAmount, color, onCopy, link }) {
+function FundingProgress({ fundingId, goalAmount, color, onCopy, onCopyLinkOnly, onShowMenu, link }) {
   const [raised, setRaised] = useState(0)
   const [count, setCount] = useState(0)
 
@@ -1088,9 +1118,17 @@ function FundingProgress({ fundingId, goalAmount, color, onCopy, link }) {
   return (
     <div style={{marginBottom:14}}>
       {link && onCopy && (
-        <div onClick={() => onCopy(raised, pct, count)} style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', marginBottom:12, background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}}>
-          <div style={{fontSize:14, color:color, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
-          <div style={{fontSize:16, flexShrink:0}}>📋</div>
+        <div style={{marginBottom:12}}>
+          <div style={{display:'flex', alignItems:'center', gap:6, cursor:'pointer', background:'#f8f8f8', borderRadius:10, padding:'10px 14px'}} onClick={() => { if (onCopyLinkOnly) { onCopy(raised, pct, count) } }}>
+            <div style={{fontSize:14, color:color, fontWeight:600, flex:1, wordBreak:'break-all'}}>{link}</div>
+            <div style={{fontSize:16, flexShrink:0}}>📋</div>
+          </div>
+          {onShowMenu && (
+            <div style={{marginTop:6, border:'1px solid #f0f0f0', borderRadius:10, overflow:'hidden'}}>
+              <div onClick={() => onCopyLinkOnly()} style={{padding:'12px 16px', fontSize:14, color:'#333', cursor:'pointer', borderBottom:'1px solid #f0f0f0'}}>링크만 복사</div>
+              <div onClick={() => onCopy(raised, pct, count)} style={{padding:'12px 16px', fontSize:14, color:'#333', cursor:'pointer'}}>내용과 함께 복사</div>
+            </div>
+          )}
         </div>
       )}
       <div style={{display:'flex', justifyContent:'space-between', marginBottom:5}}>
